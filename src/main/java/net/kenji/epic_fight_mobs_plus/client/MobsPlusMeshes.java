@@ -2,7 +2,7 @@ package net.kenji.epic_fight_mobs_plus.client;
 
 import com.google.common.collect.Maps;
 import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
-import net.kenji.epic_fight_mobs_plus.client.meshes.WolfMesh;
+import net.kenji.epic_fight_mobs_plus.client.meshes.MobsPlusMesh;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -15,11 +15,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public class MobsPlusMeshes implements PreparableReloadListener {
-    private static final Map<ResourceLocation, Meshes.MeshAccessor<? extends Mesh>> ACCESSORS = Maps.newHashMap();
-    private static final Map<Meshes.MeshAccessor<? extends Mesh>, Mesh> MESHES = Maps.newHashMap();
-    private static ResourceManager resourceManager = null;
-    public static final Meshes INSTANCE = new Meshes();
-    public static final Meshes.MeshAccessor<WolfMesh> WOLF = Meshes.MeshAccessor.<WolfMesh>create(EpicFightMobsPlus.MODID, "entity/wolf", (jsonModelLoader) -> (WolfMesh)jsonModelLoader.loadSkinnedMesh(WolfMesh::new));
+    public static final Meshes.MeshAccessor<MobsPlusMesh> WOLF = Meshes.MeshAccessor.<MobsPlusMesh>create(EpicFightMobsPlus.MODID, "entity/wolf", (jsonModelLoader) -> (MobsPlusMesh)jsonModelLoader.loadSkinnedMesh(MobsPlusMesh::new));
+    public static final Meshes.MeshAccessor<MobsPlusMesh> HORSE = Meshes.MeshAccessor.<MobsPlusMesh>create(EpicFightMobsPlus.MODID, "entity/horse", (jsonModelLoader) -> (MobsPlusMesh)jsonModelLoader.loadSkinnedMesh(MobsPlusMesh::new));
 
     @Override
     public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, ProfilerFiller profilerFiller, ProfilerFiller profilerFiller1, Executor executor, Executor executor1) {

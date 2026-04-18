@@ -1,12 +1,18 @@
 package net.kenji.epic_fight_mobs_plus;
 
 import com.mojang.logging.LogUtils;
+import net.kenji.epic_fight_mobs_plus.client.patched_renderers.WolfPatchRenderer;
 import net.kenji.epic_fight_mobs_plus.events.MobPatchEvents;
 import net.kenji.epic_fight_mobs_plus.events.client_events.EpicFightClientEvents;
+import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusArmatures;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
+import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -33,8 +39,16 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
+import yesman.epicfight.client.renderer.patched.entity.PatchedEntityRenderer;
+import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.CreeperArmature;
+import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(EpicFightMobsPlus.MODID)
@@ -44,7 +58,6 @@ public class EpicFightMobsPlus {
     public static final String MODID = "epic_fight_mobs_plus";
 
     // Creates a creative tab with the id "epic_fight_mobs_plus:example_tab" for the example item, that is placed after the combat tab
-
 
     public EpicFightMobsPlus() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();

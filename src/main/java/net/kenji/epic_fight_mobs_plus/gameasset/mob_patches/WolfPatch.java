@@ -1,10 +1,12 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
 import net.kenji.epic_fight_mobs_plus.network.ClientWolfRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.TamableAnimal;
@@ -26,6 +28,7 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.mob.SpiderPatch;
 import yesman.epicfight.world.capabilities.entitypatch.mob.WitherSkeletonPatch;
@@ -35,7 +38,7 @@ import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
-public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> {
+public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implements AnimalMobPatchInterface {
 
     public WolfPatch() {
         super(Factions.NEUTRAL);
@@ -135,4 +138,12 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> {
         return MobsPlusAnimations.WOLF_TEST_ANIM;
     }
 
+    @Override
+    public boolean shouldRun() {
+        return cachedShouldRun;
+    }
+    @Override
+    public LivingEntityPatch<?> getEntityPatch() {
+        return this;
+    }
 }

@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.mixins;
 
+import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
 import net.minecraft.world.entity.Mob;
 import org.jline.utils.Log;
@@ -15,26 +16,25 @@ public class MobPatchMixin {
     @Inject(method = "commonMobUpdateMotion", at = @At("HEAD"), cancellable = true)
     public void onUpdateMotion(boolean considerInaction, CallbackInfo ci){
         MobPatch<?> self = (MobPatch<?>) (Object)this;
-        if (self instanceof WolfPatch<?> wolf) {
+        if (self instanceof AnimalMobPatchInterface patch) {
             ci.cancel();
-
-            if (wolf.getOriginal().getHealth() <= 0.0F) {
-                wolf.currentLivingMotion = LivingMotions.DEATH;
-            } else if (wolf.getEntityState().inaction() && considerInaction) {
-                wolf.currentLivingMotion = LivingMotions.INACTION;
+            if (patch.getEntityPatch().getOriginal().getHealth() <= 0.0F) {
+                patch.getEntityPatch().currentLivingMotion = LivingMotions.DEATH;
+            } else if (patch.getEntityPatch().getEntityState().inaction() && considerInaction) {
+                patch.getEntityPatch().currentLivingMotion = LivingMotions.INACTION;
             } else {
-                if ( wolf.getOriginal().getVehicle() != null)
-                    wolf.currentLivingMotion = LivingMotions.MOUNT;
-                else if (wolf.getOriginal().getDeltaMovement().y < -0.55F || wolf.isAirborneState())
-                    wolf.currentLivingMotion = LivingMotions.FALL;
-                else if ( wolf.getOriginal().walkAnimation.speed() > 0.01F) {
-                    if(wolf.cachedShouldRun)
-                        wolf.currentLivingMotion = LivingMotions.CHASE;
-                    else wolf.currentLivingMotion = LivingMotions.WALK;
+                if (patch.getEntityPatch().getOriginal().getVehicle() != null)
+                    patch.getEntityPatch().currentLivingMotion = LivingMotions.MOUNT;
+                else if (patch.getEntityPatch().getOriginal().getDeltaMovement().y < -0.55F || patch.getEntityPatch().isAirborneState())
+                    patch.getEntityPatch().currentLivingMotion = LivingMotions.FALL;
+                else if (patch.getEntityPatch().getOriginal().walkAnimation.speed() > 0.01F) {
+                    if(patch.shouldRun())
+                        patch.getEntityPatch().currentLivingMotion = LivingMotions.CHASE;
+                    else patch.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
                 }
-                else wolf.currentLivingMotion = LivingMotions.IDLE;
+                else patch.getEntityPatch().currentLivingMotion = LivingMotions.IDLE;
             }
-            wolf.currentCompositeMotion = wolf.currentLivingMotion;
+            patch.getEntityPatch().currentCompositeMotion = patch.getEntityPatch().currentLivingMotion;
         }
     }
 

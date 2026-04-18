@@ -1,6 +1,7 @@
 package net.kenji.epic_fight_mobs_plus.events.client_events;
 
 import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
+import net.kenji.epic_fight_mobs_plus.api.MobPatchFactory;
 import net.kenji.epic_fight_mobs_plus.client.patched_renderers.WolfPatchRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -13,10 +14,11 @@ import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
 public class EpicFightClientEvents {
     @SubscribeEvent
     public static void registerPatchedEntityRenderers(PatchedRenderersEvent.Add event) {
-        event.addPatchedEntityRenderer(EntityType.WOLF, entityType -> new WolfPatchRenderer(
-                        event.getContext(),
-                        entityType
-                )
-        );
+        for (MobPatchFactory.MobPatchDefinitions def : MobPatchFactory.mobPatches) {
+            event.addPatchedEntityRenderer(
+                    def.entityType,
+                    entityType -> def.rendererFactory.create(event.getContext(), entityType)
+            );
+        }
     }
 }
