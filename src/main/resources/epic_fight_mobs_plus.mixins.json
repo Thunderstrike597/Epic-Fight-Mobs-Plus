@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.kenji.epic_fight_mobs_plus.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "epic_fight_mobs_plus.refmap.json",
+  "mixins": [
+    "LivingEntityMixin",
+    "MobMixin",
+    "MobPatchMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
