@@ -7,6 +7,7 @@ import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
 import net.minecraft.client.model.WolfModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.WolfRenderer;
+import net.minecraft.client.renderer.entity.layers.SaddleLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Wolf;
@@ -22,7 +23,6 @@ public class PWolfRenderer extends PatchedLivingEntityRenderer<Wolf, WolfPatch<W
         super(context, entityType);
         this.addCustomLayer(new PatchedWolfCollarLayer<>(MobsPlusMeshes.WOLF)); // ← not addPatchedLayer
     }
-
 
 
 
