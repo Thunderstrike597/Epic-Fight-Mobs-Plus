@@ -7,6 +7,7 @@ import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.animal.horse.Horse;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import org.jline.utils.Log;
 import yesman.epicfight.api.animation.AnimationPlayer;
@@ -19,6 +20,7 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
 public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> implements AnimalMobPatchInterface {
@@ -69,7 +71,6 @@ public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> impleme
     }
 
 
-
     @Override
     protected void initAnimator(Animator animator) {
         super.initAnimator(animator);
@@ -81,7 +82,12 @@ public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> impleme
 
     @Override
     public boolean shouldRun() {
-        return this.getOriginal().getControllingPassenger() != null;
+        Vec3 movement = this.getOriginal().getDeltaMovement();
+        Vec3 forward = this.getOriginal().getForward();
+        double forwardSpeed = movement.dot(forward); // project movement onto facing direction
+        if (forwardSpeed > 0.1F)
+            return this.getOriginal().getControllingPassenger() != null;
+        return false;
     }
 
     @Override

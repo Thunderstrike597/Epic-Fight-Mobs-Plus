@@ -135,7 +135,7 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
 
     @Override
     public AssetAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {
-        return MobsPlusAnimations.WOLF_TEST_ANIM;
+        return MobsPlusAnimations.WOLF_IDLE;
     }
 
     @Override

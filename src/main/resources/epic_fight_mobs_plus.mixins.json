@@ -10,7 +10,9 @@
     "MobPatchMixin",
     "EntityAccessor",
     "AbstractHorseAccessor",
-    "EntityMixin"
+    "EntityMixin",
+    "PlayerPatchMixin",
+    "AbstractClientPlayerPatchMixin"
   ],
   "client": [
   ],

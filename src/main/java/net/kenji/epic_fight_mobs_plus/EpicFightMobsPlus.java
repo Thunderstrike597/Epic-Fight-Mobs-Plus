@@ -39,6 +39,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
+import yesman.epicfight.api.utils.ExtendableEnumManager;
 import yesman.epicfight.client.renderer.patched.entity.PatchedEntityRenderer;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
 import yesman.epicfight.gameasset.Armatures;
@@ -67,6 +68,7 @@ public class EpicFightMobsPlus {
         modEventBus.addListener(MobPatchEvents::registerPatchedEntities);
         modEventBus.addListener(MobPatchEvents::commonSetup);
         modEventBus.addListener(MobsPlusAnimations::registerAnimations);
+
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modEventBus.addListener(EpicFightClientEvents::registerPatchedEntityRenderers);        }
         // Register ourselves for server and other game events we are interested in

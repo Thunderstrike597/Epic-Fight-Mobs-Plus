@@ -6,6 +6,7 @@ import net.kenji.epic_fight_mobs_plus.gameasset.armatures.WolfArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.HorsePatch;
 import net.kenji.epic_fight_mobs_plus.mixins.AbstractHorseAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.EntityAccessor;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jline.utils.Log;
@@ -24,7 +25,11 @@ public class MobsPlusAnimations {
     public static void registerAnimations(AnimationManager.AnimationRegistryEvent event) {
         event.newBuilder(EpicFightMobsPlus.MODID, MobsPlusAnimations::build);    }
 
-    public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_TEST_ANIM;
+
+    public static AnimationManager.AnimationAccessor<StaticAnimation> BIPED_MOUNT_RIDE_FORWARD;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> BIPED_MOUNT_RIDE_BACKWARD;
+
+
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_IDLE;
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_WALK;
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_RUN;
@@ -40,7 +45,10 @@ public class MobsPlusAnimations {
 
 
     private static void build(AnimationManager.AnimationBuilder builder){
-        WOLF_TEST_ANIM = builder.nextAccessor("wolf/wolf_test_anim", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF)));
+        BIPED_MOUNT_RIDE_FORWARD = builder.nextAccessor("biped/living/mount_ride_forward", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));
+        BIPED_MOUNT_RIDE_BACKWARD = builder.nextAccessor("biped/living/mount_ride_backward", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));
+
+
         WOLF_IDLE = builder.nextAccessor("wolf/living/wolf_idle", (accessor -> new StaticAnimation(0.2F, true, accessor, MobsPlusArmatures.WOLF)));
         WOLF_WALK = builder.nextAccessor("wolf/living/wolf_walk", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF)));
         WOLF_RUN = builder.nextAccessor("wolf/living/wolf_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF)));
@@ -50,7 +58,16 @@ public class MobsPlusAnimations {
 
 
         HORSE_IDLE = builder.nextAccessor("horse/living/horse_idle", (accessor -> new StaticAnimation(0.2F, true, accessor, MobsPlusArmatures.HORSE)));
-        HORSE_WALK = builder.nextAccessor("horse/living/horse_walk", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.HORSE)));
+        HORSE_WALK = builder.nextAccessor("horse/living/horse_walk", (accessor -> new StaticAnimation(0.25F,true, accessor, MobsPlusArmatures.HORSE).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
+            if(entitypatch instanceof HorsePatch<?> horsePatch){
+                Vec3 movement = horsePatch.getOriginal().getDeltaMovement();
+                Vec3 forward = horsePatch.getOriginal().getForward();
+                double forwardSpeed = movement.dot(forward); // project movement onto facing direction
+                if (forwardSpeed < -0.01F)
+                   return -1;
+            }
+            return speed;
+        })));
         HORSE_RUN = builder.nextAccessor("horse/living/horse_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.HORSE)));
         HORSE_JUMP = builder.nextAccessor("horse/living/horse_jump", (accessor -> new StaticAnimation(0.05F,false, accessor, MobsPlusArmatures.HORSE).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
             if(entitypatch instanceof HorsePatch<?> horsePatch){
