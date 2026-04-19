@@ -9,7 +9,8 @@
     "MobMixin",
     "MobPatchMixin",
     "EntityAccessor",
-    "AbstractHorseAccessor"
+    "AbstractHorseAccessor",
+    "EntityMixin"
   ],
   "client": [
   ],
