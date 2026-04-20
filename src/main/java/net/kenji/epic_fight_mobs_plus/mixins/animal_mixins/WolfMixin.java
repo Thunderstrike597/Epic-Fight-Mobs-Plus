@@ -24,4 +24,5 @@ public class WolfMixin {
 
         selector.addGoal(priority, goal);
     }
+
 }

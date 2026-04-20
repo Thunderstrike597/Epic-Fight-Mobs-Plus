@@ -43,6 +43,7 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
             MobsPlusPacketHandler.sendToAll(new ClientPetRunPacket(getOriginal().getId(), shouldRun));
         }
         updateMotion(false);
+
         super.tick(event);
     }
 
@@ -66,6 +67,7 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
             isFollowingOwner = false;
             this.getOriginal().getPersistentData().putBoolean("is_following", false);
         }
+
 
         return isFollowingOwner ||  this.getOriginal().getPersistentData().getBoolean("is_following") || this.getOriginal().getTarget() != null;
     }
