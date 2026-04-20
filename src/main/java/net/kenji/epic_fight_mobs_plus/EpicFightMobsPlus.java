@@ -2,6 +2,7 @@ package net.kenji.epic_fight_mobs_plus;
 
 import com.mojang.logging.LogUtils;
 import net.kenji.epic_fight_mobs_plus.client.patched_renderers.WolfPatchRenderer;
+import net.kenji.epic_fight_mobs_plus.compat.CompatEvents;
 import net.kenji.epic_fight_mobs_plus.events.MobPatchEvents;
 import net.kenji.epic_fight_mobs_plus.events.client_events.EpicFightClientEvents;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusArmatures;
@@ -68,7 +69,7 @@ public class EpicFightMobsPlus {
         modEventBus.addListener(MobPatchEvents::registerPatchedEntities);
         modEventBus.addListener(MobPatchEvents::commonSetup);
         modEventBus.addListener(MobsPlusAnimations::registerAnimations);
-
+        CompatEvents.OnInit(modEventBus);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modEventBus.addListener(EpicFightClientEvents::registerPatchedEntityRenderers);        }
@@ -79,7 +80,6 @@ public class EpicFightMobsPlus {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(MobsPlusPacketHandler::register);
-
     }
 
 

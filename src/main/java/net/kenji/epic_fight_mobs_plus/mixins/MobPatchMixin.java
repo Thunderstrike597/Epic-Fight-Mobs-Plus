@@ -34,7 +34,7 @@ public class MobPatchMixin {
                     Vec3 movement = patch.getEntityPatch().getOriginal().getDeltaMovement();
                     Vec3 forward = patch.getEntityPatch().getOriginal().getForward();
                     double forwardSpeed = movement.dot(forward);
-                    if(patch.shouldRun() && forwardSpeed > patch.getWalkSpeed()) {
+                    if(patch.shouldRun() && (forwardSpeed > patch.getWalkSpeed())) {
                         patch.getEntityPatch().currentLivingMotion = LivingMotions.CHASE;
                     }
                     else patch.getEntityPatch().currentLivingMotion = LivingMotions.WALK;

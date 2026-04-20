@@ -1,5 +1,6 @@
-package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
+package net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next;
 
+import doggytalents.common.entity.Dog;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
@@ -8,7 +9,8 @@ import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.TamableAnimal;
-import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
+import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.animal.Wolf;
@@ -26,9 +28,9 @@ import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
-public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implements AnimalMobPatchInterface {
+public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements AnimalMobPatchInterface {
 
-    public WolfPatch() {
+    public DogPatch() {
         super(Factions.NEUTRAL);
     }
     public boolean isFollowingOwner = false;
@@ -52,7 +54,7 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
         boolean followGoalActive = false;
 
         for (WrappedGoal wrappedGoal : this.getOriginal().goalSelector.getRunningGoals().toList()) {
-            if (wrappedGoal.getGoal() instanceof FollowOwnerGoal) {
+            if (wrappedGoal.getGoal() instanceof FollowOwnerGoal || this.getOriginal().isDogFollowingSomeone()) {
                 followGoalActive = true;
                 isFollowingOwnerCounter = MAX_COUNTER;
                 this.getOriginal().getPersistentData().putBoolean("is_following", true);
@@ -117,8 +119,7 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
 
     @Override
     public boolean shouldRun() {
-
-        return shouldRun;
+        return shouldRun || this.getOriginal().isDogFollowingSomeone();
     }
     @Override
     public void setShouldRun(boolean value) {
@@ -131,7 +132,7 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
 
     @Override
     public float getWalkSpeed() {
-        return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor() / 2;
+        return this.getOriginal().getUrgentSpeedModifier() / 2;
     }
 
     @Override
