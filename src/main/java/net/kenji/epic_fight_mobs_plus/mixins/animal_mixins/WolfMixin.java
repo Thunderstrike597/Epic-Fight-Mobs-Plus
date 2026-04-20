@@ -1,7 +1,6 @@
-package net.kenji.epic_fight_mobs_plus.mixins;
+package net.kenji.epic_fight_mobs_plus.mixins.animal_mixins;
 
 import net.minecraft.world.entity.ai.goal.*;
-import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Wolf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,13 +17,11 @@ public class WolfMixin {
     )
     private void redirectAddGoal(GoalSelector selector, int priority, Goal goal) {
 
-        // ❌ Filter out combat-related goals
         if (goal instanceof LeapAtTargetGoal ||
                 goal instanceof MeleeAttackGoal) {
             return; // skip adding
         }
 
-        // ✅ Let everything else through
         selector.addGoal(priority, goal);
     }
 }

@@ -6,21 +6,18 @@ import net.kenji.epic_fight_mobs_plus.gameasset.armatures.CatArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.WolfArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.CatPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.HorsePatch;
-import net.kenji.epic_fight_mobs_plus.mixins.AbstractHorseAccessor;
-import net.kenji.epic_fight_mobs_plus.mixins.EntityAccessor;
-import net.kenji.epic_fight_mobs_plus.mixins.PathNavigationMixin;
+import net.kenji.epic_fight_mobs_plus.mixins.accessors.AbstractHorseAccessor;
+import net.kenji.epic_fight_mobs_plus.mixins.accessors.EntityAccessor;
+import net.kenji.epic_fight_mobs_plus.mixins.accessors.PathNavigationAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.jline.utils.Log;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
-import yesman.epicfight.model.armature.SpiderArmature;
 
 @Mod.EventBusSubscriber(modid = EpicFightMobsPlus.MODID)
 public class MobsPlusAnimations {
@@ -107,7 +104,7 @@ public class MobsPlusAnimations {
         CAT_WALK = builder.nextAccessor("cat/living/cat_walk", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.CAT)));
         CAT_RUN = builder.nextAccessor("cat/living/cat_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.CAT).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
             if(entitypatch instanceof CatPatch<?> catPatch){
-                return (float) (((PathNavigationMixin)catPatch.getOriginal().getNavigation()).getSpeedModifier() * 2) + speed;
+                return (float) (((PathNavigationAccessor)catPatch.getOriginal().getNavigation()).getSpeedModifier() * 2) + speed;
             }
             return speed;
         })));

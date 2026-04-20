@@ -1,10 +1,9 @@
-package net.kenji.epic_fight_mobs_plus.mixins;
+package net.kenji.epic_fight_mobs_plus.mixins.animal_mixins;
 
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.goal.LeapAtTargetGoal;
 import net.minecraft.world.entity.ai.goal.OcelotAttackGoal;
-import net.minecraft.world.entity.ai.goal.target.NonTameRandomTargetGoal;
 import net.minecraft.world.entity.animal.Cat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,13 +20,11 @@ public class CatMixin {
     )
     private void redirectAddGoal(GoalSelector selector, int priority, Goal goal) {
 
-        // ❌ Filter out combat-related goals
         if (goal instanceof LeapAtTargetGoal ||
                 goal instanceof OcelotAttackGoal) {
             return; // skip adding
         }
 
-        // ✅ Let everything else through
         selector.addGoal(priority, goal);
     }
 }

@@ -2,7 +2,7 @@ package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
-import net.kenji.epic_fight_mobs_plus.mixins.LivingEntityAccessor;
+import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
