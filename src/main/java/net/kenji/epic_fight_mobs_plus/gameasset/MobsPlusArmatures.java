@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
+import net.kenji.epic_fight_mobs_plus.gameasset.armatures.CatArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.HorseArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.WolfArmature;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,5 +31,6 @@ public class MobsPlusArmatures {
 
     public static final Armatures.ArmatureAccessor<WolfArmature> WOLF = Armatures.ArmatureAccessor.<WolfArmature>create(EpicFightMobsPlus.MODID, "entity/wolf", WolfArmature::new);
     public static final Armatures.ArmatureAccessor<HorseArmature> HORSE = Armatures.ArmatureAccessor.<HorseArmature>create(EpicFightMobsPlus.MODID, "entity/horse", HorseArmature::new);
+    public static final Armatures.ArmatureAccessor<CatArmature> CAT = Armatures.ArmatureAccessor.<CatArmature>create(EpicFightMobsPlus.MODID, "entity/cat", CatArmature::new);
 
 }

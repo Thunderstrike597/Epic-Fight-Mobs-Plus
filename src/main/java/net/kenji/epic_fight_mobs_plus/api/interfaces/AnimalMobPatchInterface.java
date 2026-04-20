@@ -4,5 +4,9 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public interface AnimalMobPatchInterface {
     boolean shouldRun();
+    float getWalkSpeed();
+    void setShouldRun(boolean value);
+    boolean shouldInterceptAi();
     LivingEntityPatch<?> getEntityPatch();
+
 }

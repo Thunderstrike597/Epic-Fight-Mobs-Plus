@@ -25,10 +25,10 @@ public class MobsPlusPacketHandler {
     }
 
     public static void register() {
-        INSTANCE.messageBuilder(ClientWolfRunPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(ClientWolfRunPacket::decode)
-                .encoder(ClientWolfRunPacket::encode)
-                .consumerMainThread(ClientWolfRunPacket::handle)
+        INSTANCE.messageBuilder(ClientPetRunPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(ClientPetRunPacket::decode)
+                .encoder(ClientPetRunPacket::encode)
+                .consumerMainThread(ClientPetRunPacket::handle)
                 .add();
     }
 

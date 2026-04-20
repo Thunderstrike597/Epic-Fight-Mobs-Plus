@@ -12,7 +12,12 @@
     "AbstractHorseAccessor",
     "EntityMixin",
     "PlayerPatchMixin",
-    "AbstractClientPlayerPatchMixin"
+    "AbstractClientPlayerPatchMixin",
+    "LivingEntityAccessor",
+    "CatMixin",
+    "CatAccessor",
+    "WolfMixin",
+    "PathNavigationMixin"
   ],
   "client": [
   ],

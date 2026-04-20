@@ -1,6 +1,7 @@
 package net.kenji.epic_fight_mobs_plus.client.patched_renderers.p_renderers;
 
 import net.kenji.epic_fight_mobs_plus.client.MobsPlusMeshes;
+import net.kenji.epic_fight_mobs_plus.client.layers.PatchedHorseArmorLayer;
 import net.kenji.epic_fight_mobs_plus.client.layers.PatchedHorseSaddleLayer;
 import net.kenji.epic_fight_mobs_plus.client.layers.PatchedWolfCollarLayer;
 import net.kenji.epic_fight_mobs_plus.client.meshes.MobsPlusMesh;
@@ -19,6 +20,8 @@ public class PHorseRenderer extends PatchedLivingEntityRenderer<Horse, HorsePatc
     public PHorseRenderer(Meshes.MeshAccessor<MobsPlusMesh> horse, EntityRendererProvider.Context context, EntityType<?> entityType) {
         super(context, entityType);
         this.addCustomLayer(new PatchedHorseSaddleLayer<>(MobsPlusMeshes.HORSE));
+        this.addCustomLayer(new PatchedHorseArmorLayer<>(MobsPlusMeshes.HORSE));
+
     }
 
 

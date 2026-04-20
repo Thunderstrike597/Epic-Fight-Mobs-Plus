@@ -1,8 +1,10 @@
 package net.kenji.epic_fight_mobs_plus.mixins;
 
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
+import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.CatPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.phys.Vec3;
 import org.jline.utils.Log;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,8 +31,12 @@ public class MobPatchMixin {
                 else if (patch.getEntityPatch().getOriginal().getDeltaMovement().y < -0.55F || patch.getEntityPatch().isAirborneState())
                     patch.getEntityPatch().currentLivingMotion = LivingMotions.FALL;
                 else if (patch.getEntityPatch().getOriginal().walkAnimation.speed() > 0.01F) {
-                    if(patch.shouldRun())
+                    Vec3 movement = patch.getEntityPatch().getOriginal().getDeltaMovement();
+                    Vec3 forward = patch.getEntityPatch().getOriginal().getForward();
+                    double forwardSpeed = movement.dot(forward);
+                    if(patch.shouldRun() && forwardSpeed > patch.getWalkSpeed()) {
                         patch.getEntityPatch().currentLivingMotion = LivingMotions.CHASE;
+                    }
                     else patch.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
                 }
                 else patch.getEntityPatch().currentLivingMotion = LivingMotions.IDLE;
