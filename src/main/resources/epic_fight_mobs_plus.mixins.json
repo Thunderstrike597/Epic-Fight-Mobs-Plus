@@ -10,14 +10,16 @@
     "accessors.EntityAccessor",
     "accessors.LivingEntityAccessor",
     "accessors.PathNavigationAccessor",
+    "accessors.DogAiManagerAccessor",
     "animal_mixins.CatMixin",
     "animal_mixins.WolfMixin",
+    "animal_mixins.DogAiManagerMixin",
     "AbstractClientPlayerPatchMixin",
     "EntityMixin",
     "LivingEntityMixin",
     "MobMixin",
     "MobPatchMixin",
-    "PlayerPatchMixin",
+    "PlayerPatchMixin"
   ],
   "client": [
   ],

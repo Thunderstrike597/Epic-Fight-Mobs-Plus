@@ -27,7 +27,10 @@ public class CompatMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (!isLoaded("doggytalents")) {
-            if (mixinClassName.endsWith("DogMixin")) {
+            if (mixinClassName.endsWith("DogAiManagerMixin")) {
+                return false;
+            }
+            if (mixinClassName.endsWith("DogAiManagerAccessor")) {
                 return false;
             }
         }

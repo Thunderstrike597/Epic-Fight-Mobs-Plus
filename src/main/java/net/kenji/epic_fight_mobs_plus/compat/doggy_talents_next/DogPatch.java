@@ -15,6 +15,7 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import org.jline.utils.Log;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -94,10 +95,8 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
                 1,
                 new AnimatedAttackGoal<>(this, new CombatBehaviors.Builder<>().newBehaviorSeries(CombatBehaviors.BehaviorSeries.builder().weight(10).nextBehavior(CombatBehaviors.Behavior.builder().animationBehavior(MobsPlusAnimations.WOLF_ATTACK_1).withinDistance(0.1F, 1.8F))).build(this))
         );
-        this.original.goalSelector.addGoal(1, new TargetChasingGoal(this, (PathfinderMob)this.original, (double)1.0F, false));
-        this.original.targetSelector.addGoal(5, new ChasePassiveMobGoal(this, this.getOriginal(), Animal.class, Wolf.PREY_SELECTOR,1.0D, false));
-        this.original.targetSelector.addGoal(5, new ChasePassiveMobGoal(this, this.getOriginal(), Turtle.class, Turtle.BABY_ON_LAND_SELECTOR,1.0D, false));
-
+        this.original.goalSelector.addGoal(1, new TargetChasingGoal(this,
+                (PathfinderMob) this.original, 1.0F, false));
     }
 
     @Override
