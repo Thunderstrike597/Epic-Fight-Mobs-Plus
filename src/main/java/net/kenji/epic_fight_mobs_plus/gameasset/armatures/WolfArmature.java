@@ -1,9 +1,7 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.armatures;
 
-import net.minecraft.world.entity.monster.Spider;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.model.armature.SpiderArmature;
 
 import java.util.Map;
 
@@ -16,8 +14,8 @@ public class WolfArmature extends Armature {
     public final Joint jaw;
     public final Joint earR;
     public final Joint earL;
-    public final Joint EyeR;
-    public final Joint EyeL;
+    public final Joint eyeR;
+    public final Joint eyeL;
     // Front legs
     public final Joint shoulderFR;
     public final Joint thighFR;
@@ -54,8 +52,8 @@ public class WolfArmature extends Armature {
         this.jaw = getOrLogException(jointMap, "Jaw");
         this.earR = getOrLogException(jointMap, "Ear_R");
         this.earL = getOrLogException(jointMap, "Ear_L");
-        this.EyeR = getOrLogException(jointMap, "Eye_R");
-        this.EyeL = getOrLogException(jointMap, "Eye_L");
+        this.eyeR = getOrLogException(jointMap, "Eye_R");
+        this.eyeL = getOrLogException(jointMap, "Eye_L");
 
         // Front Right
         this.shoulderFR = getOrLogException(jointMap, "Shoulder_FR");

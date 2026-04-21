@@ -12,6 +12,7 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraft.world.entity.animal.Turtle;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -108,7 +109,13 @@ public class CatPatch<H extends Cat> extends MobPatch<Cat> implements AnimalMobP
         animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.CAT_SITTING);
 
     }
-
+    @Override
+    public boolean shouldRunWithAnim() {
+        Vec3 movement = this.getOriginal().getDeltaMovement();
+        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
+        double forwardSpeed = movement.dot(forward);
+        return shouldRun() && (forwardSpeed > this.getWalkSpeed());
+    }
     @Override
     public boolean shouldRun() {
        if(!this.getOriginal().isSteppingCarefully()) {

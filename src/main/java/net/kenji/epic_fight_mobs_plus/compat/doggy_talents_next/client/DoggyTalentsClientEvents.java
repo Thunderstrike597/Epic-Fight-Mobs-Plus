@@ -12,7 +12,6 @@ public class DoggyTalentsClientEvents {
 
     @SubscribeEvent
     public static void registerPatchedEntityRenderers(PatchedRenderersEvent.Add event) {
-        Log.info("Logging Doggy Talents Client Event!");
 
         event.addPatchedEntityRenderer(
                DoggyEntityTypes.DOG.get(),

@@ -31,10 +31,7 @@ public class MobPatchMixin {
                 else if (patch.getEntityPatch().getOriginal().getDeltaMovement().y < -0.55F || patch.getEntityPatch().isAirborneState())
                     patch.getEntityPatch().currentLivingMotion = LivingMotions.FALL;
                 else if (patch.getEntityPatch().getOriginal().walkAnimation.speed() > 0.01F) {
-                    Vec3 movement = patch.getEntityPatch().getOriginal().getDeltaMovement();
-                    Vec3 forward = patch.getEntityPatch().getOriginal().getForward();
-                    double forwardSpeed = movement.dot(forward);
-                    if(patch.shouldRun() && (forwardSpeed > patch.getWalkSpeed())) {
+                    if(patch.shouldRunWithAnim()) {
                         patch.getEntityPatch().currentLivingMotion = LivingMotions.CHASE;
                     }
                     else patch.getEntityPatch().currentLivingMotion = LivingMotions.WALK;

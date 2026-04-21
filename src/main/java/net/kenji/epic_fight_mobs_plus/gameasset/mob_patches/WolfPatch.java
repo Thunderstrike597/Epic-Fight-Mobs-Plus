@@ -12,6 +12,7 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -114,7 +115,13 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
     public AssetAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {
         return MobsPlusAnimations.WOLF_IDLE;
     }
-
+    @Override
+    public boolean shouldRunWithAnim() {
+        Vec3 movement = this.getOriginal().getDeltaMovement();
+        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
+        double forwardSpeed = movement.dot(forward);
+        return shouldRun() && (forwardSpeed > this.getWalkSpeed());
+    }
     @Override
     public boolean shouldRun() {
 

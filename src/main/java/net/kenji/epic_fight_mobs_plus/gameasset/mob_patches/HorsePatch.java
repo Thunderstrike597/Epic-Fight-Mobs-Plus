@@ -74,6 +74,13 @@ public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> impleme
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.HORSE_RUN);
         animator.addLivingAnimation(LivingMotions.JUMP, MobsPlusAnimations.HORSE_JUMP);
     }
+    @Override
+    public boolean shouldRunWithAnim() {
+        Vec3 movement = this.getOriginal().getDeltaMovement();
+        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
+        double forwardSpeed = movement.dot(forward);
+        return shouldRun() && (forwardSpeed > this.getWalkSpeed());
+    }
 
     @Override
     public boolean shouldRun() {

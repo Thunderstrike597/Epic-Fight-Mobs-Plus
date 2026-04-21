@@ -1,9 +1,13 @@
 package net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next;
 
 import doggytalents.common.entity.Dog;
+import doggytalents.common.entity.ai.DogAiManager;
+import doggytalents.common.entity.ai.DogFollowOwnerGoal;
+import doggytalents.common.entity.ai.triggerable.TriggerableAction;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
+import net.kenji.epic_fight_mobs_plus.mixins.accessors.DogAiManagerAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
@@ -14,6 +18,7 @@ import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import org.jline.utils.Log;
 import yesman.epicfight.api.animation.Animator;
@@ -54,9 +59,10 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
     public boolean computeShouldRun() {
         boolean followGoalActive = false;
 
-        for (WrappedGoal wrappedGoal : this.getOriginal().goalSelector.getRunningGoals().toList()) {
-            if (wrappedGoal.getGoal() instanceof FollowOwnerGoal || this.getOriginal().isDogFollowingSomeone()) {
+        for (WrappedGoal wrappedGoal : ((DogAiManagerAccessor)this.getOriginal().dogAi).getGoals()) {
+            if (wrappedGoal.getGoal() instanceof DogFollowOwnerGoal || this.getOriginal().isDogFollowingSomeone()) {
                 followGoalActive = true;
+
                 isFollowingOwnerCounter = MAX_COUNTER;
                 this.getOriginal().getPersistentData().putBoolean("is_following", true);
             }
@@ -118,8 +124,18 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
 
     @Override
     public boolean shouldRun() {
+       // Log.info("Logging Should Run For Dog: " + shouldRun);
         return shouldRun || this.getOriginal().isDogFollowingSomeone();
     }
+
+    @Override
+    public boolean shouldRunWithAnim() {
+        Vec3 movement = this.getOriginal().getDeltaMovement();
+        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
+        double forwardSpeed = movement.dot(forward);
+        return shouldRun() && forwardSpeed > 0.165F;
+    }
+
     @Override
     public void setShouldRun(boolean value) {
         shouldRun = value;

@@ -15,7 +15,8 @@ public class CatArmature extends Armature {
     public final Joint jaw;
     public final Joint earR;
     public final Joint earL;
-
+    public final Joint eyeR;
+    public final Joint eyeL;
     // Front legs
     public final Joint shoulderFR;
     public final Joint thighFR;
@@ -57,6 +58,8 @@ public class CatArmature extends Armature {
         this.jaw = getOrLogException(jointMap, "Jaw");
         this.earR = getOrLogException(jointMap, "Ear_R");
         this.earL = getOrLogException(jointMap, "Ear_L");
+        this.eyeR = getOrLogException(jointMap, "Eye_R");
+        this.eyeL = getOrLogException(jointMap, "Eye_L");
         // Front Right
         this.shoulderFR = getOrLogException(jointMap, "Shoulder_FR");
         this.thighFR = getOrLogException(jointMap, "Thigh_FR");

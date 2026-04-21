@@ -8,10 +8,16 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Mixin(DogAiManager.class)
 public interface DogAiManagerAccessor {
     @Invoker("registerDogGoal")
     WrappedGoal invokeRegisterGoal(int priority, Goal goal);
     @Accessor("dog")
     Dog getDog();
+    @Accessor("goals")
+    ArrayList<WrappedGoal> getGoals();
+
 }
