@@ -4,7 +4,8 @@ import yesman.epicfight.api.animation.LivingMotion;
 
 public enum MobsPlusLivingMotions implements LivingMotion {
     MOUNT_FORWARD,
-    MOUNT_BACKWARD;
+    MOUNT_BACKWARD,
+    IDLE_ACTION;
     @Override
     public int universalOrdinal() {
         return 0;

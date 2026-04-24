@@ -1,6 +1,7 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
+import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
@@ -14,9 +15,7 @@ import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import yesman.epicfight.api.animation.Animator;
-import yesman.epicfight.api.animation.LivingMotion;
-import yesman.epicfight.api.animation.LivingMotions;
+import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
@@ -27,7 +26,10 @@ import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
+import java.util.List;
+
 public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implements AnimalMobPatchInterface {
+    public AnimationManager.AnimationAccessor<? extends StaticAnimation> quedIdleAction = null;
 
     public WolfPatch() {
         super(Factions.NEUTRAL);
@@ -134,6 +136,24 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
     @Override
     public boolean shouldInterceptAi() {
         return false;
+    }
+
+    @Override
+    public List<AnimationManager.AnimationAccessor<? extends StaticAnimation>> getIdleActionAnimations() {
+        return List.of(MobsPlusAnimations.WOLF_IDLE_ACTION_1);
+    }
+
+    @Override
+    public void queIdleAction(AnimationManager.AnimationAccessor<? extends StaticAnimation> idleAction) {
+        quedIdleAction = idleAction;
+    }
+    @Override
+    public boolean isIdleActionPlaying() {
+        return this.getCurrentLivingMotion() == MobsPlusLivingMotions.IDLE_ACTION;
+    }
+    @Override
+    public AnimationManager.AnimationAccessor<? extends StaticAnimation> getQuedIdleAction() {
+        return quedIdleAction;
     }
 
     @Override

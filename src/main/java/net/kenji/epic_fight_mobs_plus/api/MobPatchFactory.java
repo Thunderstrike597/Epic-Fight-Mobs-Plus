@@ -1,14 +1,8 @@
 package net.kenji.epic_fight_mobs_plus.api;
 
-import net.kenji.epic_fight_mobs_plus.client.patched_renderers.CatPatchRenderer;
-import net.kenji.epic_fight_mobs_plus.client.patched_renderers.HorsePatchRenderer;
-import net.kenji.epic_fight_mobs_plus.client.patched_renderers.SkeletonHorsePatchRenderer;
-import net.kenji.epic_fight_mobs_plus.client.patched_renderers.WolfPatchRenderer;
+import net.kenji.epic_fight_mobs_plus.client.patched_renderers.*;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusArmatures;
-import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.CatPatch;
-import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.HorsePatch;
-import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.SkeletonHorsePatch;
-import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
+import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.*;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -66,6 +60,12 @@ public class MobPatchFactory {
                 MobsPlusArmatures.CAT,
                 (e) -> CatPatch::new,
                 (context, type) -> new CatPatchRenderer((EntityRendererProvider.Context) context, type)
+        ));
+        mobPatches.add(new MobPatchDefinitions(
+                EntityType.FOX,
+                MobsPlusArmatures.FOX,
+                (e) -> FoxPatch::new,
+                (context, type) -> new FoxPatchRenderer((EntityRendererProvider.Context) context, type)
         ));
     }
     @FunctionalInterface

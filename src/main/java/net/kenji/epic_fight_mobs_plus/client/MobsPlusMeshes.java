@@ -18,6 +18,7 @@ public class MobsPlusMeshes implements PreparableReloadListener {
     public static final Meshes.MeshAccessor<MobsPlusMesh> WOLF = Meshes.MeshAccessor.<MobsPlusMesh>create(EpicFightMobsPlus.MODID, "entity/wolf", (jsonModelLoader) -> (MobsPlusMesh)jsonModelLoader.loadSkinnedMesh(MobsPlusMesh::new));
     public static final Meshes.MeshAccessor<MobsPlusMesh> HORSE = Meshes.MeshAccessor.<MobsPlusMesh>create(EpicFightMobsPlus.MODID, "entity/horse", (jsonModelLoader) -> (MobsPlusMesh)jsonModelLoader.loadSkinnedMesh(MobsPlusMesh::new));
     public static final Meshes.MeshAccessor<MobsPlusMesh> CAT = Meshes.MeshAccessor.<MobsPlusMesh>create(EpicFightMobsPlus.MODID, "entity/cat", (jsonModelLoader) -> (MobsPlusMesh)jsonModelLoader.loadSkinnedMesh(MobsPlusMesh::new));
+    public static final Meshes.MeshAccessor<MobsPlusMesh> FOX = Meshes.MeshAccessor.<MobsPlusMesh>create(EpicFightMobsPlus.MODID, "entity/fox", (jsonModelLoader) -> (MobsPlusMesh)jsonModelLoader.loadSkinnedMesh(MobsPlusMesh::new));
 
     @Override
     public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, ProfilerFiller profilerFiller, ProfilerFiller profilerFiller1, Executor executor, Executor executor1) {

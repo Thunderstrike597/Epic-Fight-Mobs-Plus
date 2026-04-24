@@ -1,6 +1,7 @@
 package net.kenji.epic_fight_mobs_plus.mixins;
 
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
+import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.CatPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
 import net.minecraft.world.entity.Mob;
@@ -10,9 +11,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+
+import java.util.Objects;
 
 @Mixin(value = MobPatch.class, remap = false)
 public class MobPatchMixin {
@@ -37,6 +41,7 @@ public class MobPatchMixin {
                     else patch.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
                 }
                 else patch.getEntityPatch().currentLivingMotion = LivingMotions.IDLE;
+
             }
             patch.getEntityPatch().currentCompositeMotion = patch.getEntityPatch().currentLivingMotion;
         }

@@ -1,28 +1,26 @@
-package net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next;
+package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
-import doggytalents.common.entity.Dog;
-import doggytalents.common.entity.ai.DogAiManager;
-import doggytalents.common.entity.ai.DogFollowOwnerGoal;
-import doggytalents.common.entity.ai.triggerable.TriggerableAction;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
-import net.kenji.epic_fight_mobs_plus.mixins.accessors.DogAiManagerAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
-import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.Fox;
+import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraft.world.entity.animal.Turtle;
-import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import org.jline.utils.Log;
-import yesman.epicfight.api.animation.*;
+import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.Animator;
+import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
@@ -34,39 +32,40 @@ import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 import java.util.List;
+import java.util.function.Predicate;
 
-public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements AnimalMobPatchInterface {
+public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobPatchInterface {
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> quedIdleAction = null;
 
-    public DogPatch() {
+    public FoxPatch() {
         super(Factions.NEUTRAL);
     }
-    public boolean isFollowingOwner = false;
-    public static int MAX_COUNTER = 20;
-    public int isFollowingOwnerCounter = 20;
+
+
+
     public boolean shouldRun = false;
 
     @Override
     public void tick(LivingEvent.LivingTickEvent event) {
         if (!this.getOriginal().level().isClientSide()) {
-            shouldRun = computeShouldRun();
+            shouldRun = computeRun();
             MobsPlusPacketHandler.sendToAll(new ClientPetRunPacket(getOriginal().getId(), shouldRun));
         }
         updateMotion(false);
-
         super.tick(event);
     }
 
-
-    public boolean computeShouldRun() {
+    public boolean isFollowingOwner = false;
+    public static int MAX_COUNTER = 20;
+    public int isFollowingOwnerCounter = 20;
+    public boolean computeRun() {
         boolean followGoalActive = false;
 
-        for (WrappedGoal wrappedGoal : ((DogAiManagerAccessor)this.getOriginal().dogAi).getGoals()) {
-            if (wrappedGoal.getGoal() instanceof DogFollowOwnerGoal || this.getOriginal().isDogFollowingSomeone()) {
+        for (WrappedGoal wrappedGoal : this.getOriginal().goalSelector.getRunningGoals().toList()) {
+            if (wrappedGoal.getGoal() instanceof FollowOwnerGoal || wrappedGoal.getGoal() instanceof AvoidEntityGoal<?>) {
                 followGoalActive = true;
-
                 isFollowingOwnerCounter = MAX_COUNTER;
-                this.getOriginal().getPersistentData().putBoolean("is_following", true);
+                this.getOriginal().getPersistentData().putBoolean("is_running", true);
             }
         }
 
@@ -76,72 +75,74 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
             isFollowingOwner = followGoalActive || isFollowingOwnerCounter > 0;
         } else {
             isFollowingOwner = false;
-            this.getOriginal().getPersistentData().putBoolean("is_following", false);
+            this.getOriginal().getPersistentData().putBoolean("is_running", false);
         }
 
+        return isFollowingOwner ||  this.getOriginal().getPersistentData().getBoolean("is_following");
+    }
 
-        return isFollowingOwner ||  this.getOriginal().getPersistentData().getBoolean("is_following") || this.getOriginal().getTarget() != null;
+    @Override
+    public AssetAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {
+        return null;
     }
 
     @Override
     public void updateMotion(boolean b) {
-        if (this.getOriginal().isInSittingPose()) {
+        if (this.getOriginal().isSitting()) {
             this.currentLivingMotion = LivingMotions.SIT;
             this.currentCompositeMotion = LivingMotions.SIT;
             return;
         }
+        if (this.getOriginal().isSleeping()) {
+            this.currentLivingMotion = LivingMotions.SLEEP;
+            this.currentCompositeMotion = LivingMotions.SLEEP;
+            return;
+        }
         super.commonMobUpdateMotion(b);
-    }
-
-    @Override
-    public LivingMotion getCurrentLivingMotion() {
-        return this.currentLivingMotion;
     }
     @Override
     protected void initAI() {
         this.original.goalSelector.addGoal(
                 1,
-                new AnimatedAttackGoal<>(this, new CombatBehaviors.Builder<>().newBehaviorSeries(CombatBehaviors.BehaviorSeries.builder().weight(10).nextBehavior(CombatBehaviors.Behavior.builder().animationBehavior(MobsPlusAnimations.WOLF_ATTACK_1).withinDistance(0.1F, 1.8F))).build(this))
+                new AnimatedAttackGoal<>(this, new CombatBehaviors.Builder<>().newBehaviorSeries(CombatBehaviors.BehaviorSeries.builder().weight(10).nextBehavior(CombatBehaviors.Behavior.builder().animationBehavior(MobsPlusAnimations.CAT_ATTACK).withinDistance(0.1F, 1.75F))).build(this))
         );
-        this.original.goalSelector.addGoal(1, new TargetChasingGoal(this,
-                (PathfinderMob) this.original, 1.0F, false));
-    }
+        this.original.goalSelector.addGoal(1, new TargetChasingGoal(this, (PathfinderMob)this.original, (double)1.0F, false));
 
+    }
     @Override
     protected void initAnimator(Animator animator) {
         super.initAnimator(animator);
-
-        animator.addLivingAnimation(LivingMotions.IDLE, MobsPlusAnimations.WOLF_IDLE);
-        animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.WOLF_WALK);
-        animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.WOLF_RUN);
-        animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.WOLF_SITTING);
-
+        animator.addLivingAnimation(LivingMotions.IDLE, MobsPlusAnimations.FOX_IDLE);
+        animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.FOX_RUN);
+        animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.FOX_RUN);
+        animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.FOX_SIT);
+        animator.addLivingAnimation(LivingMotions.SLEEP, MobsPlusAnimations.FOX_SLEEP);
     }
-
-
-    @Override
-    public AssetAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {
-        return MobsPlusAnimations.WOLF_IDLE;
-    }
-
-    @Override
-    public boolean shouldRun() {
-       // Log.info("Logging Should Run For Dog: " + shouldRun);
-        return shouldRun || this.getOriginal().isDogFollowingSomeone();
-    }
-
     @Override
     public boolean shouldRunWithAnim() {
         Vec3 movement = this.getOriginal().getDeltaMovement();
         Vec3 forward = this.getEntityPatch().getOriginal().getForward();
         double forwardSpeed = movement.dot(forward);
-        return shouldRun() && forwardSpeed > 0.1F;
+        return shouldRun() && (forwardSpeed > this.getWalkSpeed());
+    }
+    @Override
+    public boolean shouldRun() {
+       if(!this.getOriginal().isSteppingCarefully()) {
+           return shouldRun || this.getOriginal().getTarget() != null;
+       }
+        return false;
+    }
+
+    @Override
+    public float getWalkSpeed() {
+        return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor() / 2;
     }
 
     @Override
     public void setShouldRun(boolean value) {
         shouldRun = value;
     }
+
     @Override
     public boolean shouldInterceptAi() {
         return false;
@@ -149,9 +150,8 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
 
     @Override
     public List<AnimationManager.AnimationAccessor<? extends StaticAnimation>> getIdleActionAnimations() {
-        return List.of(MobsPlusAnimations.WOLF_IDLE_ACTION_1);
+        return List.of();
     }
-
     @Override
     public void queIdleAction(AnimationManager.AnimationAccessor<? extends StaticAnimation> idleAction) {
         quedIdleAction = idleAction;
@@ -164,12 +164,6 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> getQuedIdleAction() {
         return quedIdleAction;
     }
-
-    @Override
-    public float getWalkSpeed() {
-        return this.getOriginal().getUrgentSpeedModifier() / 2;
-    }
-
     @Override
     public LivingEntityPatch<?> getEntityPatch() {
         return this;

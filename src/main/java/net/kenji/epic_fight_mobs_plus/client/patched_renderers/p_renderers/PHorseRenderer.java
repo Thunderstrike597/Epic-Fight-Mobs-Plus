@@ -19,7 +19,8 @@ import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRender
 public class PHorseRenderer extends PatchedLivingEntityRenderer<Horse, HorsePatch<Horse>, HorseModel<Horse>, HorseRenderer, MobsPlusMesh> {
     public PHorseRenderer(Meshes.MeshAccessor<MobsPlusMesh> horse, EntityRendererProvider.Context context, EntityType<?> entityType) {
         super(context, entityType);
-
+        this.addCustomLayer(new PatchedHorseSaddleLayer<>(MobsPlusMeshes.HORSE));
+        this.addCustomLayer(new PatchedHorseArmorLayer<>(MobsPlusMeshes.HORSE));
     }
 
 
