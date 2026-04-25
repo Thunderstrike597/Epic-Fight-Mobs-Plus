@@ -87,16 +87,18 @@ public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> impleme
 
     @Override
     public boolean shouldRun() {
-        Vec3 movement = this.getOriginal().getDeltaMovement();
-        Vec3 forward = this.getOriginal().getForward();
-        double forwardSpeed = movement.dot(forward);
-        return forwardSpeed > 0.15F;
+        return getCurrentForwardSpeed() > 0.15F;
     }
     @Override
     public float getWalkSpeed() {
         return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor();
     }
-
+    @Override
+    public double getCurrentForwardSpeed() {
+        Vec3 movement = this.getOriginal().getDeltaMovement();
+        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
+        return movement.dot(forward);
+    }
     @Override
     public void setShouldRun(boolean value) {
 
@@ -115,7 +117,15 @@ public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> impleme
     public void queIdleAction(AnimationManager.AnimationAccessor<? extends StaticAnimation> idleAction) {
         quedIdleAction = idleAction;
     }
+    @Override
+    public int getMinIdleActionInterval() {
+        return 2;
+    }
 
+    @Override
+    public int getMaxIdleActionInterval() {
+        return 16;
+    }
     @Override
     public boolean isIdleActionPlaying() {
         return this.getCurrentLivingMotion() == MobsPlusLivingMotions.IDLE_ACTION;

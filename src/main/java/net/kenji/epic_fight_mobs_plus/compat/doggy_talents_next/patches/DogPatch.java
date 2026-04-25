@@ -1,24 +1,18 @@
-package net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next;
+package net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.patches;
 
 import doggytalents.common.entity.Dog;
-import doggytalents.common.entity.ai.DogAiManager;
 import doggytalents.common.entity.ai.DogFollowOwnerGoal;
-import doggytalents.common.entity.ai.triggerable.TriggerableAction;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
-import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
+import net.kenji.epic_fight_mobs_plus.mixins.accessors.DogAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.DogAiManagerAccessor;
-import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
+import net.kenji.epic_fight_mobs_plus.mixins.accessors.WolfAccessor;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.TamableAnimal;
-import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Turtle;
-import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import org.jline.utils.Log;
@@ -53,7 +47,7 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
             MobsPlusPacketHandler.sendToAll(new ClientPetRunPacket(getOriginal().getId(), shouldRun));
         }
         updateMotion(false);
-
+        Log.info("Current Anim: " + this.getAnimator().getPlayerFor(null).getAnimation().get());
         super.tick(event);
     }
 
@@ -90,6 +84,11 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
             this.currentCompositeMotion = LivingMotions.SIT;
             return;
         }
+        if (((DogAccessor)this.getOriginal()).getIsShaking()) {
+            this.currentLivingMotion = MobsPlusLivingMotions.WOLF_SHAKE_OFF;
+            this.currentCompositeMotion = MobsPlusLivingMotions.WOLF_SHAKE_OFF;
+            return;
+        }
         super.commonMobUpdateMotion(b);
     }
 
@@ -115,6 +114,7 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.WOLF_WALK);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.WOLF_RUN);
         animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.WOLF_SITTING);
+        animator.addLivingAnimation(MobsPlusLivingMotions.WOLF_SHAKE_OFF, MobsPlusAnimations.WOLF_SHAKE);
 
     }
 
@@ -132,10 +132,7 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
 
     @Override
     public boolean shouldRunWithAnim() {
-        Vec3 movement = this.getOriginal().getDeltaMovement();
-        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
-        double forwardSpeed = movement.dot(forward);
-        return shouldRun() && forwardSpeed > 0.1F;
+        return shouldRun() && getCurrentForwardSpeed() > 0.1F;
     }
 
     @Override
@@ -157,6 +154,15 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
         quedIdleAction = idleAction;
     }
     @Override
+    public int getMinIdleActionInterval() {
+        return 2;
+    }
+
+    @Override
+    public int getMaxIdleActionInterval() {
+        return 12;
+    }
+    @Override
     public boolean isIdleActionPlaying() {
         return this.getCurrentLivingMotion() == MobsPlusLivingMotions.IDLE_ACTION;
     }
@@ -169,7 +175,12 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
     public float getWalkSpeed() {
         return this.getOriginal().getUrgentSpeedModifier() / 2;
     }
-
+    @Override
+    public double getCurrentForwardSpeed() {
+        Vec3 movement = this.getOriginal().getDeltaMovement();
+        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
+        return movement.dot(forward);
+    }
     @Override
     public LivingEntityPatch<?> getEntityPatch() {
         return this;

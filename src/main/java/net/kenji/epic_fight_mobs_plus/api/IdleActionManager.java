@@ -26,8 +26,6 @@ public class IdleActionManager {
     private static Map<UUID, Integer> entityIdleActionMap = new HashMap<>();
     private static Map<UUID, Boolean> entityIdlePlayedAnimMap = new HashMap<>();
 
-    public final static int MAX_IDLE_TICK_WAIT = 320;
-    public final static int MIN_IDLE_TICK_WAIT = 40;
 
     @SubscribeEvent
     public static void onLivingTick(LivingEvent.LivingTickEvent event){
@@ -59,7 +57,7 @@ public class IdleActionManager {
             if(maxIndex < 0)return;
 
             if(entityTickWaitIdleActionMap.get(entityId) == null)
-                entityTickWaitIdleActionMap.put(entityId, (int)Mth.randomBetween(patchInterface.getEntityPatch().getOriginal().getRandom(), MIN_IDLE_TICK_WAIT, MAX_IDLE_TICK_WAIT));
+                entityTickWaitIdleActionMap.put(entityId, (int)Mth.randomBetween(patchInterface.getEntityPatch().getOriginal().getRandom(), patchInterface.getMinIdleActionInterval() * 20, patchInterface.getMaxIdleActionInterval() * 20));
             else{
                 int tickWait = entityTickWaitIdleActionMap.get(entityId);
                 int currentTick = entityIdleActionMap.getOrDefault(entityId, tickWait);

@@ -116,10 +116,7 @@ public class CatPatch<H extends Cat> extends MobPatch<Cat> implements AnimalMobP
     }
     @Override
     public boolean shouldRunWithAnim() {
-        Vec3 movement = this.getOriginal().getDeltaMovement();
-        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
-        double forwardSpeed = movement.dot(forward);
-        return shouldRun() && (forwardSpeed > this.getWalkSpeed());
+        return shouldRun() && (getCurrentForwardSpeed() > this.getWalkSpeed());
     }
     @Override
     public boolean shouldRun() {
@@ -133,7 +130,12 @@ public class CatPatch<H extends Cat> extends MobPatch<Cat> implements AnimalMobP
     public float getWalkSpeed() {
         return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor() / 2;
     }
-
+    @Override
+    public double getCurrentForwardSpeed() {
+        Vec3 movement = this.getOriginal().getDeltaMovement();
+        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
+        return movement.dot(forward);
+    }
     @Override
     public void setShouldRun(boolean value) {
         shouldRun = value;
@@ -155,6 +157,15 @@ public class CatPatch<H extends Cat> extends MobPatch<Cat> implements AnimalMobP
     @Override
     public boolean isIdleActionPlaying() {
         return this.getCurrentLivingMotion() == MobsPlusLivingMotions.IDLE_ACTION;
+    }
+    @Override
+    public int getMinIdleActionInterval() {
+        return 2;
+    }
+
+    @Override
+    public int getMaxIdleActionInterval() {
+        return 12;
     }
     @Override
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> getQuedIdleAction() {

@@ -11,6 +11,8 @@
     "accessors.LivingEntityAccessor",
     "accessors.PathNavigationAccessor",
     "accessors.DogAiManagerAccessor",
+    "accessors.WolfAccessor",
+    "accessors.DogAccessor",
     "animal_mixins.CatMixin",
     "animal_mixins.WolfMixin",
     "animal_mixins.DogAiManagerMixin",

@@ -113,22 +113,21 @@ public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobP
     protected void initAnimator(Animator animator) {
         super.initAnimator(animator);
         animator.addLivingAnimation(LivingMotions.IDLE, MobsPlusAnimations.FOX_IDLE);
-        animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.FOX_RUN);
+        animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.FOX_WALK);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.FOX_RUN);
         animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.FOX_SIT);
         animator.addLivingAnimation(LivingMotions.SLEEP, MobsPlusAnimations.FOX_SLEEP);
     }
     @Override
     public boolean shouldRunWithAnim() {
-        Vec3 movement = this.getOriginal().getDeltaMovement();
-        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
-        double forwardSpeed = movement.dot(forward);
-        return shouldRun() && (forwardSpeed > this.getWalkSpeed());
+
+        return shouldRun() && (getCurrentForwardSpeed() > this.getWalkSpeed());
     }
     @Override
     public boolean shouldRun() {
        if(!this.getOriginal().isSteppingCarefully()) {
-           return shouldRun || this.getOriginal().getTarget() != null;
+
+           return this.getOriginal().getTarget() != null || (getCurrentForwardSpeed() > this.getWalkSpeed());
        }
         return false;
     }
@@ -136,6 +135,13 @@ public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobP
     @Override
     public float getWalkSpeed() {
         return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor() / 2;
+    }
+
+    @Override
+    public double getCurrentForwardSpeed() {
+        Vec3 movement = this.getOriginal().getDeltaMovement();
+        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
+        return movement.dot(forward);
     }
 
     @Override
@@ -159,6 +165,15 @@ public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobP
     @Override
     public boolean isIdleActionPlaying() {
         return this.getCurrentLivingMotion() == MobsPlusLivingMotions.IDLE_ACTION;
+    }
+    @Override
+    public int getMinIdleActionInterval() {
+        return 2;
+    }
+
+    @Override
+    public int getMaxIdleActionInterval() {
+        return 12;
     }
     @Override
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> getQuedIdleAction() {

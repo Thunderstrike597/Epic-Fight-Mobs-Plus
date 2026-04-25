@@ -5,6 +5,7 @@ import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
+import net.kenji.epic_fight_mobs_plus.mixins.accessors.WolfAccessor;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.PathfinderMob;
@@ -82,6 +83,11 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
             this.currentCompositeMotion = LivingMotions.SIT;
             return;
         }
+        if (((WolfAccessor)this.getOriginal()).getIsShaking()) {
+            this.currentLivingMotion = MobsPlusLivingMotions.WOLF_SHAKE_OFF;
+            this.currentCompositeMotion = MobsPlusLivingMotions.WOLF_SHAKE_OFF;
+            return;
+        }
         super.commonMobUpdateMotion(b);
     }
 
@@ -109,6 +115,7 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.WOLF_WALK);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.WOLF_RUN);
         animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.WOLF_SITTING);
+        animator.addLivingAnimation(MobsPlusLivingMotions.WOLF_SHAKE_OFF, MobsPlusAnimations.WOLF_SHAKE);
 
     }
 
@@ -119,10 +126,7 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
     }
     @Override
     public boolean shouldRunWithAnim() {
-        Vec3 movement = this.getOriginal().getDeltaMovement();
-        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
-        double forwardSpeed = movement.dot(forward);
-        return shouldRun() && (forwardSpeed > this.getWalkSpeed());
+       return shouldRun() && (getCurrentForwardSpeed() > this.getWalkSpeed());
     }
     @Override
     public boolean shouldRun() {
@@ -151,6 +155,17 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
     public boolean isIdleActionPlaying() {
         return this.getCurrentLivingMotion() == MobsPlusLivingMotions.IDLE_ACTION;
     }
+
+    @Override
+    public int getMinIdleActionInterval() {
+        return 2;
+    }
+
+    @Override
+    public int getMaxIdleActionInterval() {
+        return 12;
+    }
+
     @Override
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> getQuedIdleAction() {
         return quedIdleAction;
@@ -160,7 +175,12 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
     public float getWalkSpeed() {
         return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor() / 2;
     }
-
+    @Override
+    public double getCurrentForwardSpeed() {
+        Vec3 movement = this.getOriginal().getDeltaMovement();
+        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
+        return movement.dot(forward);
+    }
     @Override
     public LivingEntityPatch<?> getEntityPatch() {
         return this;

@@ -3,7 +3,7 @@ package net.kenji.epic_fight_mobs_plus.mixins.animal_mixins;
 import doggytalents.common.entity.Dog;
 import doggytalents.common.entity.ai.DogAiManager;
 import doggytalents.common.entity.ai.DogMeleeAttackGoal;
-import net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.DogPatch;
+import net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.patches.DogPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.goals.DogEpicFightMeleeAttackGoal;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.DogAiManagerAccessor;
@@ -16,7 +16,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
-import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 @Mixin(value = DogAiManager.class, remap = false)
 public class DogAiManagerMixin {

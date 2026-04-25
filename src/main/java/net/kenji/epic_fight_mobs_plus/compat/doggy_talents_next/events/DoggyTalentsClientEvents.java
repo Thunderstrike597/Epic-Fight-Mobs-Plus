@@ -1,11 +1,8 @@
-package net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.client;
+package net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.events;
 
 import doggytalents.DoggyEntityTypes;
-import net.kenji.epic_fight_mobs_plus.client.patched_renderers.CatPatchRenderer;
-import net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.client.patched_renderers.DogPatchRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.patched_renderers.DogPatchRenderer;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.jline.utils.Log;
 import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
 
 public class DoggyTalentsClientEvents {

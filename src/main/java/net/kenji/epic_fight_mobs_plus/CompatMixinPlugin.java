@@ -33,6 +33,9 @@ public class CompatMixinPlugin implements IMixinConfigPlugin {
             if (mixinClassName.endsWith("DogAiManagerAccessor")) {
                 return false;
             }
+            if (mixinClassName.endsWith("DogAccessor")) {
+                return false;
+            }
         }
         return true;
     }

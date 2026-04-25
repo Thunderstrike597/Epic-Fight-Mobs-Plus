@@ -26,7 +26,7 @@ public class PatchedHorseArmorLayer<AM extends SkinnedMesh> extends ModelRenderL
     protected void renderLayer(HorsePatch<Horse> entitypatch, Horse entityliving, HorseArmorLayer vanillaLayer, PoseStack poseStack, MultiBufferSource buffer, int packedLightIn, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
         ItemStack armorStack = entityliving.getArmor();
         if (!(armorStack.getItem() instanceof HorseArmorItem horsearmoritem)) return;
-
+        if(entityliving.isInvisible()) return;
         float r, g, b;
         if (horsearmoritem instanceof DyeableHorseArmorItem dyeable) {
             int color = dyeable.getColor(armorStack);

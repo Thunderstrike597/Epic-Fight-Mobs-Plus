@@ -1,12 +1,14 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.animations;
 
 import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
+import net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.patches.DogPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusArmatures;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.CatArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.WolfArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.CatPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.FoxPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.HorsePatch;
+import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.AbstractHorseAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.EntityAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.PathNavigationAccessor;
@@ -37,6 +39,7 @@ public class MobsPlusAnimations {
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_SITTING;
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_IDLE_ACTION_1;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_SHAKE;
 
     public static AnimationManager.AnimationAccessor<AttackAnimation> WOLF_ATTACK_1;
 
@@ -70,9 +73,15 @@ public class MobsPlusAnimations {
 
         WOLF_IDLE = builder.nextAccessor("wolf/living/wolf_idle", (accessor -> new StaticAnimation(0.2F, true, accessor, MobsPlusArmatures.WOLF)));
         WOLF_WALK = builder.nextAccessor("wolf/living/wolf_walk", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF)));
-        WOLF_RUN = builder.nextAccessor("wolf/living/wolf_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_RUN = builder.nextAccessor("wolf/living/wolf_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
+            if(entitypatch instanceof DogPatch<?> dogPatch){
+                return (float) dogPatch.getCurrentForwardSpeed() * 2 + speed;
+            }
+            return speed;
+        })));
         WOLF_SITTING = builder.nextAccessor("wolf/living/wolf_sit", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF)));
-        WOLF_IDLE_ACTION_1 = builder.nextAccessor("wolf/living/wolf_idle_action_1", (accessor -> new StaticAnimation(0.1F, false, accessor, MobsPlusArmatures.HORSE)));
+        WOLF_IDLE_ACTION_1 = builder.nextAccessor("wolf/living/wolf_idle_action_1", (accessor -> new StaticAnimation(0.1F, false, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_SHAKE = builder.nextAccessor("wolf/living/wolf_shake", (accessor -> new StaticAnimation(0.1F, false, accessor, MobsPlusArmatures.WOLF)));
 
         WOLF_ATTACK_1 = builder.nextAccessor("wolf/combat/wolf_attack_1", (accessor) -> new AttackAnimation(0.15F, 0.22F, 0.30F, 0.38F, 0.44F, ColliderPreset.FIST, ((WolfArmature) MobsPlusArmatures.WOLF.get()).head, accessor, MobsPlusArmatures.WOLF));
 

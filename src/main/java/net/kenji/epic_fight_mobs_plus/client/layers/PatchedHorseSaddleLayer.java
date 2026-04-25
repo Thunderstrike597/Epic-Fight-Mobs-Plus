@@ -26,7 +26,7 @@ public class PatchedHorseSaddleLayer<AM extends SkinnedMesh> extends ModelRender
 
     @Override
     protected void renderLayer(HorsePatch<Horse> entitypatch, Horse entityliving, HorseArmorLayer vanillaLayer, PoseStack poseStack, MultiBufferSource buffer, int packedLightIn, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
-        if (!entityliving.isSaddled()) return;
+        if (!entityliving.isSaddled() || entityliving.isInvisible()) return;
 
         ((SkinnedMesh) this.mesh.get()).draw(
                 poseStack, buffer,
