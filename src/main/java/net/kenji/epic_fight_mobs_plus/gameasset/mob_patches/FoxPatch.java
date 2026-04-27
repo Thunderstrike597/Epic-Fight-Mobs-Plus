@@ -5,6 +5,7 @@ import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
+import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Animator;
+import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -36,6 +38,7 @@ import java.util.function.Predicate;
 
 public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobPatchInterface {
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> quedIdleAction = null;
+    private LivingMotion currentOptionalLivingMotion;
 
     public FoxPatch() {
         super(Factions.NEUTRAL);
@@ -52,6 +55,9 @@ public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobP
             MobsPlusPacketHandler.sendToAll(new ClientPetRunPacket(getOriginal().getId(), shouldRun));
         }
         updateMotion(false);
+        if (!this.getOriginal().level().isClientSide()) {
+            MobsPlusPacketHandler.sendToAll(new ClientOptionalLivingMotionPacket(getOriginal().getId(), currentOptionalLivingMotion != null ? currentOptionalLivingMotion.universalOrdinal() : -1));
+        }
         super.tick(event);
     }
 
@@ -91,11 +97,15 @@ public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobP
         if (this.getOriginal().isSitting()) {
             this.currentLivingMotion = LivingMotions.SIT;
             this.currentCompositeMotion = LivingMotions.SIT;
+            currentOptionalLivingMotion = currentLivingMotion;
+
             return;
         }
         if (this.getOriginal().isSleeping()) {
             this.currentLivingMotion = LivingMotions.SLEEP;
             this.currentCompositeMotion = LivingMotions.SLEEP;
+            currentOptionalLivingMotion = currentLivingMotion;
+
             return;
         }
         super.commonMobUpdateMotion(b);
@@ -117,6 +127,21 @@ public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobP
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.FOX_RUN);
         animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.FOX_SIT);
         animator.addLivingAnimation(LivingMotions.SLEEP, MobsPlusAnimations.FOX_SLEEP);
+        animator.addLivingAnimation(LivingMotions.DEATH, MobsPlusAnimations.CAT_DEATH);
+
+    }
+    @Override
+    public LivingMotion getOptionalLivingMotion() {
+        return this.currentOptionalLivingMotion;
+    }
+
+    @Override
+    public void setOptionalLivingMotion(int motionId) {
+        if(motionId == -1){
+            this.currentOptionalLivingMotion = null;
+            return;
+        }
+        this.currentOptionalLivingMotion = LivingMotion.ENUM_MANAGER.get(motionId);
     }
     @Override
     public boolean shouldRunWithAnim() {

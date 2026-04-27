@@ -30,6 +30,11 @@ public class MobsPlusPacketHandler {
                 .encoder(ClientPetRunPacket::encode)
                 .consumerMainThread(ClientPetRunPacket::handle)
                 .add();
+        INSTANCE.messageBuilder(ClientOptionalLivingMotionPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(ClientOptionalLivingMotionPacket::decode)
+                .encoder(ClientOptionalLivingMotionPacket::encode)
+                .consumerMainThread(ClientOptionalLivingMotionPacket::handle)
+                .add();
     }
 
     // Helper method to send packet to server

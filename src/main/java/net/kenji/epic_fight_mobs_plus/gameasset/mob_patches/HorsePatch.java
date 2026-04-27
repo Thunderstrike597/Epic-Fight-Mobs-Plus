@@ -4,16 +4,14 @@ import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
+import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import yesman.epicfight.api.animation.AnimationManager;
-import yesman.epicfight.api.animation.AnimationPlayer;
-import yesman.epicfight.api.animation.Animator;
-import yesman.epicfight.api.animation.LivingMotions;
+import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
@@ -25,6 +23,7 @@ import java.util.List;
 
 public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> implements AnimalMobPatchInterface {
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> quedIdleAction = null;
+    private LivingMotion currentOptionalLivingMotion;
 
     public HorsePatch() {
         super(Factions.NEUTRAL);
@@ -48,6 +47,9 @@ public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> impleme
         updateMotion(false);
         if(getStoredJumpSpeed() != -1 && this.getOriginal().onGround()){
             setStoredJumpSpeed(-1);
+        }
+        if (!this.getOriginal().level().isClientSide()) {
+            MobsPlusPacketHandler.sendToAll(new ClientOptionalLivingMotionPacket(getOriginal().getId(), currentOptionalLivingMotion != null ? currentOptionalLivingMotion.universalOrdinal() : -1));
         }
         super.tick(event);
     }
@@ -79,6 +81,22 @@ public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> impleme
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.HORSE_WALK);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.HORSE_RUN);
         animator.addLivingAnimation(LivingMotions.JUMP, MobsPlusAnimations.HORSE_JUMP);
+        animator.addLivingAnimation(LivingMotions.DEATH, MobsPlusAnimations.HORSE_DEATH);
+
+    }
+
+    @Override
+    public LivingMotion getOptionalLivingMotion() {
+        return this.currentOptionalLivingMotion;
+    }
+
+    @Override
+    public void setOptionalLivingMotion(int motionId) {
+        if(motionId == -1){
+            this.currentOptionalLivingMotion = null;
+            return;
+        }
+        this.currentOptionalLivingMotion = LivingMotion.ENUM_MANAGER.get(motionId);
     }
     @Override
     public boolean shouldRunWithAnim() {

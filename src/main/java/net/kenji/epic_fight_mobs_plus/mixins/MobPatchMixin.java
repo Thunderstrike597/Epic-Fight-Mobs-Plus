@@ -40,8 +40,11 @@ public class MobPatchMixin {
                     }
                     else patch.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
                 }
-                else patch.getEntityPatch().currentLivingMotion = LivingMotions.IDLE;
-
+                else if(patch.getOptionalLivingMotion() == null)
+                        patch.getEntityPatch().currentLivingMotion = LivingMotions.IDLE;
+                else{
+                    patch.getEntityPatch().currentLivingMotion = patch.getOptionalLivingMotion();
+                }
             }
             patch.getEntityPatch().currentCompositeMotion = patch.getEntityPatch().currentLivingMotion;
         }

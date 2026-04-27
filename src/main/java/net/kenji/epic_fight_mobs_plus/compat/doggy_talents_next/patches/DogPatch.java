@@ -8,6 +8,7 @@ import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.DogAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.DogAiManagerAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.WolfAccessor;
+import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.PathfinderMob;
@@ -31,6 +32,7 @@ import java.util.List;
 
 public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements AnimalMobPatchInterface {
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> quedIdleAction = null;
+    private LivingMotion currentOptionalLivingMotion;
 
     public DogPatch() {
         super(Factions.NEUTRAL);
@@ -40,6 +42,7 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
     public int isFollowingOwnerCounter = 20;
     public boolean shouldRun = false;
 
+
     @Override
     public void tick(LivingEvent.LivingTickEvent event) {
         if (!this.getOriginal().level().isClientSide()) {
@@ -47,7 +50,9 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
             MobsPlusPacketHandler.sendToAll(new ClientPetRunPacket(getOriginal().getId(), shouldRun));
         }
         updateMotion(false);
-        Log.info("Current Anim: " + this.getAnimator().getPlayerFor(null).getAnimation().get());
+        if (!this.getOriginal().level().isClientSide()) {
+            MobsPlusPacketHandler.sendToAll(new ClientOptionalLivingMotionPacket(getOriginal().getId(), currentOptionalLivingMotion != null ? currentOptionalLivingMotion.universalOrdinal() : -1));
+        }
         super.tick(event);
     }
 
@@ -82,13 +87,22 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
         if (this.getOriginal().isInSittingPose()) {
             this.currentLivingMotion = LivingMotions.SIT;
             this.currentCompositeMotion = LivingMotions.SIT;
+            currentOptionalLivingMotion = currentLivingMotion;
             return;
         }
         if (((DogAccessor)this.getOriginal()).getIsShaking()) {
             this.currentLivingMotion = MobsPlusLivingMotions.WOLF_SHAKE_OFF;
             this.currentCompositeMotion = MobsPlusLivingMotions.WOLF_SHAKE_OFF;
+            currentOptionalLivingMotion = currentLivingMotion;
             return;
         }
+        if(this.getOriginal().isDefeated()){
+            this.currentLivingMotion = MobsPlusLivingMotions.DYING;
+            this.currentCompositeMotion = MobsPlusLivingMotions.DYING;
+            currentOptionalLivingMotion = currentLivingMotion;
+            return;
+        }
+        currentOptionalLivingMotion = null;
         super.commonMobUpdateMotion(b);
     }
 
@@ -114,7 +128,10 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.WOLF_WALK);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.WOLF_RUN);
         animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.WOLF_SITTING);
+        animator.addLivingAnimation(LivingMotions.DEATH, MobsPlusAnimations.WOLF_DEATH);
+
         animator.addLivingAnimation(MobsPlusLivingMotions.WOLF_SHAKE_OFF, MobsPlusAnimations.WOLF_SHAKE);
+        animator.addLivingAnimation(MobsPlusLivingMotions.DYING, MobsPlusAnimations.WOLF_DYING);
 
     }
 
@@ -122,6 +139,20 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
     @Override
     public AssetAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {
         return MobsPlusAnimations.WOLF_IDLE;
+    }
+
+    @Override
+    public LivingMotion getOptionalLivingMotion() {
+        return this.currentOptionalLivingMotion;
+    }
+
+    @Override
+    public void setOptionalLivingMotion(int motionId) {
+        if(motionId == -1){
+            this.currentOptionalLivingMotion = null;
+            return;
+        }
+        this.currentOptionalLivingMotion = LivingMotion.ENUM_MANAGER.get(motionId);
     }
 
     @Override

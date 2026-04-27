@@ -11,7 +11,7 @@ public class DoggyTalentsEvents {
 
 
     public static void registerPatchedEntities(EntityPatchRegistryEvent event) {
-        event.getTypeEntry().put(DoggyEntityTypes.DOG.get(), entity -> DogPatch::new);
+       event.getTypeEntry().put(DoggyEntityTypes.DOG.get(), entity -> DogPatch::new);
     }
 
     public static void commonSetup(FMLCommonSetupEvent event) {

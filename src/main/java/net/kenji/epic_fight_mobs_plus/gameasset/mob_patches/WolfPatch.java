@@ -6,6 +6,7 @@ import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.WolfAccessor;
+import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.PathfinderMob;
@@ -31,6 +32,7 @@ import java.util.List;
 
 public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implements AnimalMobPatchInterface {
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> quedIdleAction = null;
+    private LivingMotion currentOptionalLivingMotion;
 
     public WolfPatch() {
         super(Factions.NEUTRAL);
@@ -47,7 +49,9 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
             MobsPlusPacketHandler.sendToAll(new ClientPetRunPacket(getOriginal().getId(), shouldRun));
         }
         updateMotion(false);
-
+        if (!this.getOriginal().level().isClientSide()) {
+            MobsPlusPacketHandler.sendToAll(new ClientOptionalLivingMotionPacket(getOriginal().getId(), currentOptionalLivingMotion != null ? currentOptionalLivingMotion.universalOrdinal() : -1));
+        }
         super.tick(event);
     }
 
@@ -81,11 +85,13 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
         if (this.getOriginal().isInSittingPose()) {
             this.currentLivingMotion = LivingMotions.SIT;
             this.currentCompositeMotion = LivingMotions.SIT;
+            currentOptionalLivingMotion = currentLivingMotion;
             return;
         }
         if (((WolfAccessor)this.getOriginal()).getIsShaking()) {
             this.currentLivingMotion = MobsPlusLivingMotions.WOLF_SHAKE_OFF;
             this.currentCompositeMotion = MobsPlusLivingMotions.WOLF_SHAKE_OFF;
+            currentOptionalLivingMotion = currentLivingMotion;
             return;
         }
         super.commonMobUpdateMotion(b);
@@ -115,6 +121,8 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.WOLF_WALK);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.WOLF_RUN);
         animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.WOLF_SITTING);
+        animator.addLivingAnimation(LivingMotions.DEATH, MobsPlusAnimations.WOLF_DEATH);
+
         animator.addLivingAnimation(MobsPlusLivingMotions.WOLF_SHAKE_OFF, MobsPlusAnimations.WOLF_SHAKE);
 
     }
@@ -123,6 +131,20 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
     @Override
     public AssetAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {
         return MobsPlusAnimations.WOLF_IDLE;
+    }
+
+    @Override
+    public LivingMotion getOptionalLivingMotion() {
+        return this.currentOptionalLivingMotion;
+    }
+
+    @Override
+    public void setOptionalLivingMotion(int motionId) {
+        if(motionId == -1){
+            this.currentOptionalLivingMotion = null;
+            return;
+        }
+        this.currentOptionalLivingMotion = LivingMotion.ENUM_MANAGER.get(motionId);
     }
     @Override
     public boolean shouldRunWithAnim() {

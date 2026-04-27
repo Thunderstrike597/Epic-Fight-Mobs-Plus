@@ -37,9 +37,11 @@ public class MobsPlusAnimations {
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_WALK;
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_RUN;
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_SITTING;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_DEATH;
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_IDLE_ACTION_1;
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_SHAKE;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_DYING;
 
     public static AnimationManager.AnimationAccessor<AttackAnimation> WOLF_ATTACK_1;
 
@@ -48,6 +50,8 @@ public class MobsPlusAnimations {
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_WALK;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_RUN;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_JUMP;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_DEATH;
+
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_IDLE_ACTION_1;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_IDLE_ACTION_2;
 
@@ -55,6 +59,7 @@ public class MobsPlusAnimations {
     public static AnimationManager.AnimationAccessor<StaticAnimation> CAT_WALK;
     public static AnimationManager.AnimationAccessor<StaticAnimation> CAT_RUN;
     public static AnimationManager.AnimationAccessor<StaticAnimation> CAT_SITTING;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> CAT_DEATH;
 
     public static AnimationManager.AnimationAccessor<AttackAnimation> CAT_ATTACK;
 
@@ -80,8 +85,11 @@ public class MobsPlusAnimations {
             return speed;
         })));
         WOLF_SITTING = builder.nextAccessor("wolf/living/wolf_sit", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_DEATH = builder.nextAccessor("wolf/living/wolf_death", (accessor -> new StaticAnimation(0.2F, false, accessor, MobsPlusArmatures.WOLF)));
+
         WOLF_IDLE_ACTION_1 = builder.nextAccessor("wolf/living/wolf_idle_action_1", (accessor -> new StaticAnimation(0.1F, false, accessor, MobsPlusArmatures.WOLF)));
         WOLF_SHAKE = builder.nextAccessor("wolf/living/wolf_shake", (accessor -> new StaticAnimation(0.1F, false, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_DYING = builder.nextAccessor("wolf/living/wolf_dying", (accessor -> new StaticAnimation(0.1F, true, accessor, MobsPlusArmatures.WOLF)));
 
         WOLF_ATTACK_1 = builder.nextAccessor("wolf/combat/wolf_attack_1", (accessor) -> new AttackAnimation(0.15F, 0.22F, 0.30F, 0.38F, 0.44F, ColliderPreset.FIST, ((WolfArmature) MobsPlusArmatures.WOLF.get()).head, accessor, MobsPlusArmatures.WOLF));
 
@@ -126,6 +134,7 @@ public class MobsPlusAnimations {
             }
             return speed;
         })));
+        HORSE_DEATH = builder.nextAccessor("horse/living/horse_death", (accessor -> new StaticAnimation(0.2F, false, accessor, MobsPlusArmatures.HORSE)));
 
         CAT_IDLE = builder.nextAccessor("cat/living/cat_idle", (accessor -> new StaticAnimation(0.2F, true, accessor, MobsPlusArmatures.CAT)));
         CAT_WALK = builder.nextAccessor("cat/living/cat_walk", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.CAT)));
@@ -136,6 +145,7 @@ public class MobsPlusAnimations {
             return speed;
         })));
         CAT_SITTING = builder.nextAccessor("cat/living/cat_sit", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.CAT)));
+        CAT_DEATH = builder.nextAccessor("cat/living/cat_death", (accessor -> new StaticAnimation(0.2F, false, accessor, MobsPlusArmatures.CAT)));
 
         CAT_ATTACK = builder.nextAccessor("cat/combat/cat_attack", (accessor) -> new AttackAnimation(0.15F, 0.08F, 0.10F, 0.12F, 0.5F, ColliderPreset.FIST, ((CatArmature) MobsPlusArmatures.CAT.get()).head, accessor, MobsPlusArmatures.CAT));
 
