@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.mixins;
 
+import net.kenji.epic_fight_mobs_plus.api.IdleActionManager;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.CatPatch;
@@ -34,7 +35,7 @@ public class MobPatchMixin {
                     patch.getEntityPatch().currentLivingMotion = LivingMotions.MOUNT;
                 else if (patch.getEntityPatch().getOriginal().getDeltaMovement().y < -0.55F || patch.getEntityPatch().isAirborneState())
                     patch.getEntityPatch().currentLivingMotion = LivingMotions.FALL;
-                else if (patch.getEntityPatch().getOriginal().walkAnimation.speed() > 0.01F) {
+                else if (patch.getEntityPatch().getOriginal().walkAnimation.speed() > 0.01F && !IdleActionManager.getIdleActionState(self.getOriginal().getUUID()).animationPlaying) {
                     if(patch.shouldRunWithAnim()) {
                         patch.getEntityPatch().currentLivingMotion = LivingMotions.CHASE;
                     }

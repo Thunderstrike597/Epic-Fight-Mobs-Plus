@@ -21,8 +21,7 @@
     "LivingEntityMixin",
     "MobMixin",
     "MobPatchMixin",
-    "PlayerPatchMixin",
-    "StaticAnimationMixin"
+    "PlayerPatchMixin"
   ],
   "client": [
   ],

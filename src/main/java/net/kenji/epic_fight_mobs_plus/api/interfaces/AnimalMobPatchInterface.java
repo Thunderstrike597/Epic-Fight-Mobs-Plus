@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.api.interfaces;
 
+import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -17,11 +18,11 @@ public interface AnimalMobPatchInterface {
     double getCurrentForwardSpeed();
     void setShouldRun(boolean value);
     boolean shouldInterceptAi();
-    List<AnimationManager.AnimationAccessor<? extends StaticAnimation>> getIdleActionAnimations();
-    void queIdleAction(AnimationManager.AnimationAccessor<? extends StaticAnimation> idleAction);
+    List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> getIdleActionAnimations();
+    void queIdleAction(AnimationManager.AnimationAccessor<? extends IdleActionAnimation> idleAction);
     boolean isIdleActionPlaying();
     int getMinIdleActionInterval();
     int getMaxIdleActionInterval();
-    AnimationManager.AnimationAccessor<? extends StaticAnimation> getQuedIdleAction();
+    AnimationManager.AnimationAccessor<? extends IdleActionAnimation> getQuedIdleAction();
     LivingEntityPatch<?> getEntityPatch();
 }

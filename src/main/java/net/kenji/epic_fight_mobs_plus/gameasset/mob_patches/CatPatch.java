@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public class CatPatch<H extends Cat> extends MobPatch<Cat> implements AnimalMobPatchInterface {
-    public AnimationManager.AnimationAccessor<? extends StaticAnimation> quedIdleAction = null;
+    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
     private LivingMotion currentOptionalLivingMotion;
 
     public CatPatch() {
@@ -165,11 +166,11 @@ public class CatPatch<H extends Cat> extends MobPatch<Cat> implements AnimalMobP
     }
 
     @Override
-    public List<AnimationManager.AnimationAccessor<? extends StaticAnimation>> getIdleActionAnimations() {
+    public List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> getIdleActionAnimations() {
         return List.of();
     }
     @Override
-    public void queIdleAction(AnimationManager.AnimationAccessor<? extends StaticAnimation> idleAction) {
+    public void queIdleAction(AnimationManager.AnimationAccessor<? extends IdleActionAnimation> idleAction) {
         quedIdleAction = idleAction;
     }
     @Override
@@ -186,7 +187,7 @@ public class CatPatch<H extends Cat> extends MobPatch<Cat> implements AnimalMobP
         return 12;
     }
     @Override
-    public AnimationManager.AnimationAccessor<? extends StaticAnimation> getQuedIdleAction() {
+    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> getQuedIdleAction() {
         return quedIdleAction;
     }
     @Override

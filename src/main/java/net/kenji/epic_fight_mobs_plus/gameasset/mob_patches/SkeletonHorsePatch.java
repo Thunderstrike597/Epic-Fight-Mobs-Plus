@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
@@ -23,7 +24,7 @@ import yesman.epicfight.world.damagesource.StunType;
 import java.util.List;
 
 public class SkeletonHorsePatch<H extends AbstractHorse> extends MobPatch<SkeletonHorse> implements AnimalMobPatchInterface {
-    public AnimationManager.AnimationAccessor<? extends StaticAnimation> quedIdleAction = null;
+    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
     private LivingMotion currentOptionalLivingMotion;
 
     public SkeletonHorsePatch() {
@@ -128,11 +129,11 @@ public class SkeletonHorsePatch<H extends AbstractHorse> extends MobPatch<Skelet
     }
 
     @Override
-    public List<AnimationManager.AnimationAccessor<? extends StaticAnimation>> getIdleActionAnimations() {
+    public List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> getIdleActionAnimations() {
         return List.of(MobsPlusAnimations.HORSE_IDLE_ACTION_1, MobsPlusAnimations.HORSE_IDLE_ACTION_2);
     }
     @Override
-    public void queIdleAction(AnimationManager.AnimationAccessor<? extends StaticAnimation> idleAction) {
+    public void queIdleAction(AnimationManager.AnimationAccessor<? extends IdleActionAnimation> idleAction) {
         quedIdleAction = idleAction;
     }
     @Override
@@ -151,7 +152,7 @@ public class SkeletonHorsePatch<H extends AbstractHorse> extends MobPatch<Skelet
     }
 
     @Override
-    public AnimationManager.AnimationAccessor<? extends StaticAnimation> getQuedIdleAction() {
+    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> getQuedIdleAction() {
         return quedIdleAction;
     }
     @Override

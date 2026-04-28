@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
@@ -31,7 +32,7 @@ import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 import java.util.List;
 
 public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implements AnimalMobPatchInterface {
-    public AnimationManager.AnimationAccessor<? extends StaticAnimation> quedIdleAction = null;
+    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
     private LivingMotion currentOptionalLivingMotion;
 
     public WolfPatch() {
@@ -124,7 +125,6 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
         animator.addLivingAnimation(LivingMotions.DEATH, MobsPlusAnimations.WOLF_DEATH);
 
         animator.addLivingAnimation(MobsPlusLivingMotions.WOLF_SHAKE_OFF, MobsPlusAnimations.WOLF_SHAKE);
-
     }
 
 
@@ -165,12 +165,12 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
     }
 
     @Override
-    public List<AnimationManager.AnimationAccessor<? extends StaticAnimation>> getIdleActionAnimations() {
-        return List.of(MobsPlusAnimations.WOLF_IDLE_ACTION_1);
+    public List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> getIdleActionAnimations() {
+        return List.of(MobsPlusAnimations.WOLF_IDLE_ACTION_1, MobsPlusAnimations.WOLF_IDLE_ACTION_2);
     }
 
     @Override
-    public void queIdleAction(AnimationManager.AnimationAccessor<? extends StaticAnimation> idleAction) {
+    public void queIdleAction(AnimationManager.AnimationAccessor<? extends IdleActionAnimation> idleAction) {
         quedIdleAction = idleAction;
     }
     @Override
@@ -189,7 +189,7 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
     }
 
     @Override
-    public AnimationManager.AnimationAccessor<? extends StaticAnimation> getQuedIdleAction() {
+    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> getQuedIdleAction() {
         return quedIdleAction;
     }
 

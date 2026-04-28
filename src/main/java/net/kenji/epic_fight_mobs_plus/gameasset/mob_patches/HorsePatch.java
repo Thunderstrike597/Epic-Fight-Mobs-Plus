@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
@@ -22,7 +23,7 @@ import yesman.epicfight.world.damagesource.StunType;
 import java.util.List;
 
 public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> implements AnimalMobPatchInterface {
-    public AnimationManager.AnimationAccessor<? extends StaticAnimation> quedIdleAction = null;
+    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
     private LivingMotion currentOptionalLivingMotion;
 
     public HorsePatch() {
@@ -127,12 +128,12 @@ public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> impleme
     }
 
     @Override
-    public List<AnimationManager.AnimationAccessor<? extends StaticAnimation>> getIdleActionAnimations() {
-        return List.of(MobsPlusAnimations.HORSE_IDLE_ACTION_1, MobsPlusAnimations.HORSE_IDLE_ACTION_2);
+    public List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> getIdleActionAnimations() {
+        return List.of(MobsPlusAnimations.HORSE_IDLE_ACTION_1, MobsPlusAnimations.HORSE_IDLE_ACTION_2, MobsPlusAnimations.HORSE_IDLE_ACTION_3, MobsPlusAnimations.HORSE_IDLE_ACTION_4);
     }
 
     @Override
-    public void queIdleAction(AnimationManager.AnimationAccessor<? extends StaticAnimation> idleAction) {
+    public void queIdleAction(AnimationManager.AnimationAccessor<? extends IdleActionAnimation> idleAction) {
         quedIdleAction = idleAction;
     }
     @Override
@@ -150,7 +151,7 @@ public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> impleme
     }
 
     @Override
-    public AnimationManager.AnimationAccessor<? extends StaticAnimation> getQuedIdleAction() {
+    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> getQuedIdleAction() {
         return quedIdleAction;
     }
 
