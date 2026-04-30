@@ -2,7 +2,7 @@ package net.kenji.epic_fight_mobs_plus.api;
 
 import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
-import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,7 +41,7 @@ public class IdleActionManager {
     public static void onLivingTick(LivingEvent.LivingTickEvent event) {
         event.getEntity().getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent(cap -> {
             if (cap instanceof LivingEntityPatch<?> livingEntityPatch &&
-                    livingEntityPatch instanceof AnimalMobPatchInterface patchInterface) {
+                    livingEntityPatch instanceof IAnimalMobPatch patchInterface) {
 
                 UUID id = patchInterface.getEntityPatch().getOriginal().getUUID();
                 IdleActionState state = getIdleActionState(id);
@@ -76,7 +76,7 @@ public class IdleActionManager {
         state.cooldowns.entrySet().removeIf(e -> e.getValue() <= 0);
     }
 
-    private static void handleIdleActionAssign(AnimalMobPatchInterface patchInterface, IdleActionState state) {
+    private static void handleIdleActionAssign(IAnimalMobPatch patchInterface, IdleActionState state) {
         List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> animations = patchInterface.getIdleActionAnimations();
         if (animations.isEmpty()) return;
 
@@ -118,7 +118,7 @@ public class IdleActionManager {
         state.initialRotation = patchInterface.getEntityPatch().getOriginal().getYRot();
     }
 
-    private static void handleAnimationPlay(AnimalMobPatchInterface patchInterface, IdleActionState state) {
+    private static void handleAnimationPlay(IAnimalMobPatch patchInterface, IdleActionState state) {
         LivingEntity entity = patchInterface.getEntityPatch().getOriginal();
 
         if (entity instanceof Mob mob) {
@@ -132,7 +132,7 @@ public class IdleActionManager {
         entity.xxa = 0; // strafe input too
     }
 
-    public static void clearIdleActionState(AssetAccessor<? extends IdleActionAnimation> idleAnim, AnimalMobPatchInterface patchInterface, IdleActionState state) {
+    public static void clearIdleActionState(AssetAccessor<? extends IdleActionAnimation> idleAnim, IAnimalMobPatch patchInterface, IdleActionState state) {
         LivingEntity entity = patchInterface.getEntityPatch().getOriginal();
 
         if (entity instanceof Mob mob) {

@@ -2,19 +2,18 @@ package net.kenji.epic_fight_mobs_plus.gameasset.animations;
 
 import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IHorsePatch;
 import net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.patches.DogPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusArmatures;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.CatArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.WolfArmature;
-import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.CatPatch;
-import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.FoxPatch;
-import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.HorsePatch;
-import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
+import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.*;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.AbstractHorseAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.EntityAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.PathNavigationAccessor;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -112,30 +111,21 @@ public class MobsPlusAnimations {
 
         HORSE_WALK = builder.nextAccessor("horse/living/horse_walk", (accessor -> new StaticAnimation(0.25F, true, accessor, MobsPlusArmatures.HORSE)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
-                    if (entitypatch instanceof HorsePatch<?> horsePatch) {
-                        double forwardSpeed = horsePatch.getCurrentForwardSpeed();
-
-                        if (forwardSpeed < -0.05F) return -1F;
-
-                        // Get the horse's actual max walk speed attribute
-                        double maxWalkSpeed = horsePatch.getOriginal().getAttributeValue(Attributes.MOVEMENT_SPEED);
-
-                        // Normalize: 0.0 when still, 1.0 at full walk speed
-                        double normalized = Math.min(forwardSpeed / maxWalkSpeed, 1.0);
-
-                        // Scale between your known good minimum and maximum playback speed
-                        float minPlaySpeed = 0.28F;
-                        float maxPlaySpeed = 1.85F;
-                        return (float)(minPlaySpeed + normalized * (maxPlaySpeed - minPlaySpeed));
+                    if (entitypatch instanceof IAnimalMobPatch patchInterface) {
+                        return patchInterface.getAnimForwardSpeed(0.28F, 1.85F);
                     }
                     return speed;
                 })));
         HORSE_RUN = builder.nextAccessor("horse/living/horse_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.HORSE)));
         HORSE_JUMP = builder.nextAccessor("horse/living/horse_jump", (accessor -> new StaticAnimation(0.05F,false, accessor, MobsPlusArmatures.HORSE).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
-            if(entitypatch instanceof HorsePatch<?> horsePatch){
+            if(entitypatch instanceof IAnimalMobPatch patchInterface){
+                if(!(patchInterface.getEntityPatch().getOriginal() instanceof AbstractHorse horse)) return speed;
+
+                if(!(patchInterface.getEntityPatch() instanceof IHorsePatch horsePatch)) return speed;
+
                 if(horsePatch.getStoredJumpSpeed() != -1) return horsePatch.getStoredJumpSpeed();
-                double d0 = horsePatch.getOriginal().getCustomJump() * (double)((AbstractHorseAccessor)horsePatch.getOriginal()).getPlayerJumpScale() * (double)((EntityAccessor)horsePatch.getOriginal()).invokeGetBlockJumpFactor();
-                float boost = (float)( d0 + (double)horsePatch.getOriginal().getJumpBoostPower());
+                double d0 = horse.getCustomJump() * (double)((AbstractHorseAccessor)horse).getPlayerJumpScale() * (double)((EntityAccessor)horse).invokeGetBlockJumpFactor();
+                float boost = (float)( d0 + (double)horse.getJumpBoostPower());
 
 // normalize boost into 0 → 1 range (roughly)
                 float normalized = Math.min(boost, 1.0F);
@@ -143,7 +133,7 @@ public class MobsPlusAnimations {
 // invert it
                 float multiplier = 1.0F + (1.0F - normalized);
                 float finalSpeed = speed * multiplier;
-                
+
                 if(finalSpeed <= 1.8F){
                     finalSpeed = 1.0F;
                 }
@@ -161,7 +151,7 @@ public class MobsPlusAnimations {
         CAT_WALK = builder.nextAccessor("cat/living/cat_walk", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.CAT)));
         CAT_RUN = builder.nextAccessor("cat/living/cat_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.CAT).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
             if(entitypatch instanceof CatPatch<?> catPatch){
-                return (float) (((PathNavigationAccessor)catPatch.getOriginal().getNavigation()).getSpeedModifier() * 2) + speed;
+                return catPatch.getAnimForwardSpeed(0.8F, 2);
             }
             return speed;
         })));
@@ -172,9 +162,9 @@ public class MobsPlusAnimations {
 
         FOX_IDLE = builder.nextAccessor("fox/living/fox_idle", (accessor -> new StaticAnimation(0.2F, true, accessor, MobsPlusArmatures.FOX)));
         FOX_WALK = builder.nextAccessor("fox/living/fox_walk", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.FOX)));
-        FOX_RUN = builder.nextAccessor("fox/living/fox_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.FOX).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
-            if(entitypatch instanceof FoxPatch<?> foxPatch){
-                return (float) (((PathNavigationAccessor)foxPatch.getOriginal().getNavigation()).getSpeedModifier() * 2) + speed;
+        FOX_RUN = builder.nextAccessor("fox/living/fox_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.FOX)  .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
+            if (entitypatch instanceof IAnimalMobPatch patchInterface) {
+                patchInterface.getAnimForwardSpeed(0.8F, 2);
             }
             return speed;
         })));

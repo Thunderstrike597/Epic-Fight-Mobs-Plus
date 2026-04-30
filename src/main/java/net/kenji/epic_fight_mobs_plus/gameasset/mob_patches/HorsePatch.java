@@ -1,13 +1,16 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
-import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IHorsePatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
 import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.phys.Vec3;
@@ -22,13 +25,10 @@ import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.List;
 
-public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> implements AnimalMobPatchInterface {
+public class HorsePatch<H extends AbstractHorse> extends AnimalPatchBase<Horse> implements IHorsePatch {
     public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
     private LivingMotion currentOptionalLivingMotion;
 
-    public HorsePatch() {
-        super(Factions.NEUTRAL);
-    }
 
     @Override
     public void updateMotion(boolean b) {
@@ -66,10 +66,11 @@ public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> impleme
 
         return false;
     }
-
+    @Override
     public float setStoredJumpSpeed(float value){
         return storedJumpSpeed = value;
     }
+    @Override
     public float getStoredJumpSpeed(){
         return storedJumpSpeed;
     }
@@ -99,6 +100,7 @@ public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> impleme
         }
         this.currentOptionalLivingMotion = LivingMotion.ENUM_MANAGER.get(motionId);
     }
+
     @Override
     public boolean shouldRunWithAnim() {
         return shouldRun();
@@ -111,12 +113,6 @@ public class HorsePatch<H extends AbstractHorse> extends MobPatch<Horse> impleme
     @Override
     public float getWalkSpeed() {
         return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor();
-    }
-    @Override
-    public double getCurrentForwardSpeed() {
-        Vec3 movement = this.getOriginal().getDeltaMovement();
-        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
-        return movement.dot(forward);
     }
     @Override
     public void setShouldRun(boolean value) {

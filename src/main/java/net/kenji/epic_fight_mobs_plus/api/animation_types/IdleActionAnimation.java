@@ -1,7 +1,7 @@
 package net.kenji.epic_fight_mobs_plus.api.animation_types;
 
 import net.kenji.epic_fight_mobs_plus.api.IdleActionManager;
-import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -50,7 +50,7 @@ public class IdleActionAnimation extends StaticAnimation {
     @Override
     public void end(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> nextAnimation, boolean isEnd) {
         super.end(entitypatch, nextAnimation, isEnd);
-        if(entitypatch instanceof AnimalMobPatchInterface patchInterface){
+        if(entitypatch instanceof IAnimalMobPatch patchInterface){
             if(patchInterface.getQuedIdleAction() != null){
                 if(this == patchInterface.getQuedIdleAction().get()){
                     IdleActionManager.clearIdleActionState(this.getAccessor(), patchInterface, IdleActionManager.getIdleActionState(entitypatch.getOriginal().getUUID()));

@@ -1,7 +1,8 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
-import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
@@ -11,8 +12,10 @@ import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.phys.Vec3;
@@ -31,13 +34,9 @@ import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class CatPatch<H extends Cat> extends MobPatch<Cat> implements AnimalMobPatchInterface {
+public class CatPatch<H extends Cat> extends AnimalPatchBase<Cat> {
     public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
     private LivingMotion currentOptionalLivingMotion;
-
-    public CatPatch() {
-        super(Factions.NEUTRAL);
-    }
 
 
 
@@ -150,12 +149,6 @@ public class CatPatch<H extends Cat> extends MobPatch<Cat> implements AnimalMobP
         return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor() / 2;
     }
     @Override
-    public double getCurrentForwardSpeed() {
-        Vec3 movement = this.getOriginal().getDeltaMovement();
-        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
-        return movement.dot(forward);
-    }
-    @Override
     public void setShouldRun(boolean value) {
         shouldRun = value;
     }
@@ -186,6 +179,7 @@ public class CatPatch<H extends Cat> extends MobPatch<Cat> implements AnimalMobP
     public int getMaxIdleActionInterval() {
         return 12;
     }
+
     @Override
     public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> getQuedIdleAction() {
         return quedIdleAction;

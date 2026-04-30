@@ -1,12 +1,7 @@
 package net.kenji.epic_fight_mobs_plus.mixins;
 
-import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
-import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
-import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Wolf;
-import org.jetbrains.annotations.Nullable;
-import org.jline.utils.Log;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,7 +22,7 @@ public class LivingEntityMixin {
         LivingEntity self = (LivingEntity) (Object)this;
 
         self.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent((cap) -> {
-            if (cap instanceof AnimalMobPatchInterface patchInterface) {
+            if (cap instanceof IAnimalMobPatch patchInterface) {
                 if (cir.getReturnValue() != null) {
                     float current = cir.getReturnValue();
                     LivingEntityPatch<?> patch = patchInterface.getEntityPatch();
@@ -44,7 +39,7 @@ public class LivingEntityMixin {
         LivingEntity self = (LivingEntity) (Object)this;
 
         self.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent((cap) -> {
-            if (cap instanceof AnimalMobPatchInterface patchInterface) {
+            if (cap instanceof IAnimalMobPatch patchInterface) {
                 if (patchInterface.isIdleActionPlaying()) {
                     //zza = 0;
                 }

@@ -1,16 +1,13 @@
 package net.kenji.epic_fight_mobs_plus.network;
 
-import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
-import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.Wolf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
-import org.jline.utils.Log;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -58,7 +55,7 @@ public class ClientPetRunPacket {
         Entity entity = player.level().getEntity(packet.entityId);
         if(entity == null) return;
         entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent((cap) -> {
-            if(cap instanceof AnimalMobPatchInterface patchInterface){
+            if(cap instanceof IAnimalMobPatch patchInterface){
                 LivingEntityPatch<?> patch = patchInterface.getEntityPatch();
                 if(patch != null)
                     patchInterface.setShouldRun(packet.shouldRun);

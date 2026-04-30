@@ -1,23 +1,20 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
-import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
-import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
 import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
-import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Fox;
-import net.minecraft.world.entity.animal.Rabbit;
-import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -35,16 +32,10 @@ import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 import java.util.List;
-import java.util.function.Predicate;
 
-public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobPatchInterface {
+public class FoxPatch<H extends Fox> extends AnimalPatchBase<Fox> {
     public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
     private LivingMotion currentOptionalLivingMotion;
-
-    public FoxPatch() {
-        super(Factions.NEUTRAL);
-    }
-
 
 
     public boolean shouldRun = false;
@@ -62,7 +53,7 @@ public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobP
         super.tick(event);
     }
 
-    public boolean isFollowingOwner = false;
+    public boolean canRun = false;
     public static int MAX_COUNTER = 20;
     public int isFollowingOwnerCounter = 20;
     public boolean computeRun() {
@@ -79,13 +70,13 @@ public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobP
         // Decrement counter and update flag
         if (isFollowingOwnerCounter > 0) {
             isFollowingOwnerCounter--;
-            isFollowingOwner = followGoalActive || isFollowingOwnerCounter > 0;
+            canRun = followGoalActive || isFollowingOwnerCounter > 0;
         } else {
-            isFollowingOwner = false;
+            canRun = false;
             this.getOriginal().getPersistentData().putBoolean("is_running", false);
         }
 
-        return isFollowingOwner ||  this.getOriginal().getPersistentData().getBoolean("is_following");
+        return canRun ||  this.getOriginal().getPersistentData().getBoolean("is_following");
     }
 
     @Override
@@ -160,14 +151,9 @@ public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobP
 
     @Override
     public float getWalkSpeed() {
-        return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor() / 2;
-    }
-
-    @Override
-    public double getCurrentForwardSpeed() {
-        Vec3 movement = this.getOriginal().getDeltaMovement();
-        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
-        return movement.dot(forward);
+        if(!shouldRun)
+            return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor() / 2;
+        return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor();
     }
 
     @Override
@@ -201,6 +187,7 @@ public class FoxPatch<H extends Fox> extends MobPatch<Fox> implements AnimalMobP
     public int getMaxIdleActionInterval() {
         return 12;
     }
+
     @Override
     public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> getQuedIdleAction() {
         return quedIdleAction;

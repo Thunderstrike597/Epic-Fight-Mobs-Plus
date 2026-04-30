@@ -2,22 +2,22 @@ package net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.patches;
 
 import doggytalents.common.entity.Dog;
 import doggytalents.common.entity.ai.DogFollowOwnerGoal;
+import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
-import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.DogAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.DogAiManagerAccessor;
-import net.kenji.epic_fight_mobs_plus.mixins.accessors.WolfAccessor;
 import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import org.jline.utils.Log;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -31,13 +31,10 @@ import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 import java.util.List;
 
-public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements AnimalMobPatchInterface {
+public class DogPatch<W extends TamableAnimal> extends AnimalPatchBase<Dog> {
     public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
     private LivingMotion currentOptionalLivingMotion;
 
-    public DogPatch() {
-        super(Factions.NEUTRAL);
-    }
     public boolean isFollowingOwner = false;
     public static int MAX_COUNTER = 20;
     public int isFollowingOwnerCounter = 20;
@@ -136,7 +133,6 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
 
     }
 
-
     @Override
     public AssetAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {
         return MobsPlusAnimations.WOLF_IDLE;
@@ -207,12 +203,7 @@ public class DogPatch<W extends TamableAnimal> extends MobPatch<Dog> implements 
     public float getWalkSpeed() {
         return this.getOriginal().getUrgentSpeedModifier() / 2;
     }
-    @Override
-    public double getCurrentForwardSpeed() {
-        Vec3 movement = this.getOriginal().getDeltaMovement();
-        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
-        return movement.dot(forward);
-    }
+
     @Override
     public LivingEntityPatch<?> getEntityPatch() {
         return this;

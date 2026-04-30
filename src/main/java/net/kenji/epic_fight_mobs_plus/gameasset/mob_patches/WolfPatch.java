@@ -1,7 +1,8 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
-import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
@@ -12,6 +13,7 @@ import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Turtle;
@@ -31,13 +33,10 @@ import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 import java.util.List;
 
-public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implements AnimalMobPatchInterface {
+public class WolfPatch<W extends TamableAnimal> extends AnimalPatchBase<Wolf> {
     public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
     private LivingMotion currentOptionalLivingMotion;
 
-    public WolfPatch() {
-        super(Factions.NEUTRAL);
-    }
     public boolean isFollowingOwner = false;
     public static int MAX_COUNTER = 20;
     public int isFollowingOwnerCounter = 20;
@@ -192,16 +191,9 @@ public class WolfPatch<W extends TamableAnimal> extends MobPatch<Wolf> implement
     public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> getQuedIdleAction() {
         return quedIdleAction;
     }
-
     @Override
     public float getWalkSpeed() {
         return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor() / 2;
-    }
-    @Override
-    public double getCurrentForwardSpeed() {
-        Vec3 movement = this.getOriginal().getDeltaMovement();
-        Vec3 forward = this.getEntityPatch().getOriginal().getForward();
-        return movement.dot(forward);
     }
     @Override
     public LivingEntityPatch<?> getEntityPatch() {

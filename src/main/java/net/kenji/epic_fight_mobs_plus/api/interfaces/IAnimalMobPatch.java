@@ -3,12 +3,11 @@ package net.kenji.epic_fight_mobs_plus.api.interfaces;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotion;
-import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.List;
 
-public interface AnimalMobPatchInterface {
+public interface IAnimalMobPatch {
 
     LivingMotion getOptionalLivingMotion();
     void setOptionalLivingMotion(int motionId);
@@ -23,6 +22,7 @@ public interface AnimalMobPatchInterface {
     boolean isIdleActionPlaying();
     int getMinIdleActionInterval();
     int getMaxIdleActionInterval();
+    float getAnimForwardSpeed(float minSpeed, float maxSpeed);
     AnimationManager.AnimationAccessor<? extends IdleActionAnimation> getQuedIdleAction();
     LivingEntityPatch<?> getEntityPatch();
 }

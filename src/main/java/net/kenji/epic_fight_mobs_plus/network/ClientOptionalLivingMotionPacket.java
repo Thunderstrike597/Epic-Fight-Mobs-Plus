@@ -1,6 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.network;
 
-import net.kenji.epic_fight_mobs_plus.api.interfaces.AnimalMobPatchInterface;
+import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
@@ -56,7 +56,7 @@ public class ClientOptionalLivingMotionPacket {
         Entity entity = player.level().getEntity(packet.entityId);
         if(entity == null) return;
         entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent((cap) -> {
-            if(cap instanceof AnimalMobPatchInterface patchInterface){
+            if(cap instanceof IAnimalMobPatch patchInterface){
                 LivingEntityPatch<?> patch = patchInterface.getEntityPatch();
                 if(patch != null) {
                     patchInterface.setOptionalLivingMotion(packet.motionId);
