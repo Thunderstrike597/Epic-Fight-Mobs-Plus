@@ -7,6 +7,8 @@ public enum MobsPlusLivingMotions implements LivingMotion {
     MOUNT_BACKWARD,
     IDLE_ACTION,
     WOLF_SHAKE_OFF,
+    FOX_POUNCE_READY,
+    FOX_POUNCE,
     DYING;
     @Override
     public int universalOrdinal() {

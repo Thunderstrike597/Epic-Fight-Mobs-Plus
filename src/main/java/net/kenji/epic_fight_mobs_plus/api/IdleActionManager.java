@@ -3,6 +3,8 @@ package net.kenji.epic_fight_mobs_plus.api;
 import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
+import net.kenji.epic_fight_mobs_plus.network.ClientIdleActionSyncPacket;
+import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -39,6 +41,7 @@ public class IdleActionManager {
 
     @SubscribeEvent
     public static void onLivingTick(LivingEvent.LivingTickEvent event) {
+        if (event.getEntity().level().isClientSide()) return;
         event.getEntity().getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent(cap -> {
             if (cap instanceof LivingEntityPatch<?> livingEntityPatch &&
                     livingEntityPatch instanceof IAnimalMobPatch patchInterface) {
@@ -46,18 +49,23 @@ public class IdleActionManager {
                 UUID id = patchInterface.getEntityPatch().getOriginal().getUUID();
                 IdleActionState state = getIdleActionState(id);
 
-                tickCooldowns(state);
-
+                // Only tick cooldowns when no animation is playing
+                if (!state.animationPlaying) {
+                    tickCooldowns(state);
+                }
                 if (livingEntityPatch.getCurrentLivingMotion() == LivingMotions.IDLE) {
                     if (!state.animationPlaying) {
                         handleIdleActionAssign(patchInterface, state);
                     } else {
                         handleAnimationPlay(patchInterface, state);
                     }
-                } else {
-                    // Entity left IDLE — cancel any queued action
+                }  else {
                     if (state.animationPlaying) {
-                        clearIdleActionState(patchInterface.getQuedIdleAction(), patchInterface, state);
+                        AssetAccessor<? extends IdleActionAnimation> queued = patchInterface.getQuedIdleAction();
+                        clearIdleActionState(queued, patchInterface, state);
+                        // Send null to tell clients to clear
+                        MobsPlusPacketHandler.sendToAll(new ClientIdleActionSyncPacket(
+                                livingEntityPatch.getOriginal().getId(), null));
                     }
                 }
             }
@@ -109,12 +117,18 @@ public class IdleActionManager {
         List<IdleActionAnimation> candidates = idleAnims.stream()
                 .filter(a -> a.getPlayPriority() == maxPriority)
                 .toList();
-
         IdleActionAnimation chosen = weightedRandom(candidates, patchInterface.getEntityPatch().getOriginal().getRandom());
         patchInterface.queIdleAction(chosen.getAccessor());
-        patchInterface.getEntityPatch().getAnimator().playAnimation(chosen.getAccessor(), chosen.getTransitionTime()); // play it here
+        patchInterface.getEntityPatch().getServerAnimator().playAnimation(chosen.getAccessor(), chosen.getTransitionTime());
+
+// Sync to client
+        MobsPlusPacketHandler.sendToAll(new ClientIdleActionSyncPacket(
+                patchInterface.getEntityPatch().getOriginal().getId(),
+                chosen.getLocation()
+        ));
+
         state.animationPlaying = true;
-        state.ticksUntilNextAction = -1;// reset for next cycle
+        state.ticksUntilNextAction = -1;
         state.initialRotation = patchInterface.getEntityPatch().getOriginal().getYRot();
     }
 
@@ -135,18 +149,22 @@ public class IdleActionManager {
     public static void clearIdleActionState(AssetAccessor<? extends IdleActionAnimation> idleAnim, IAnimalMobPatch patchInterface, IdleActionState state) {
         LivingEntity entity = patchInterface.getEntityPatch().getOriginal();
 
+        if (!state.animationPlaying) return;
+
+
         if (entity instanceof Mob mob) {
             mob.setNoAi(false);
+            mob.getNavigation().stop();
+            mob.getNavigation().recomputePath();
         }
 
         if (idleAnim != null) {
-            if (idleAnim.get().getCooldownTicks() > 0) {
-                state.cooldowns.put(idleAnim.get(), idleAnim.get().getCooldownTicks());
-            }
+            state.cooldowns.forEach((k, cooldown) -> state.cooldowns.put(k, k.getCooldownTicks()));
         }
         patchInterface.queIdleAction(null);
         state.animationPlaying = false;
         state.initialRotation = -1;
+        state.ticksUntilNextAction = -1;
     }
 
     private static IdleActionAnimation highestPriority(List<IdleActionAnimation> anims) {

@@ -1,21 +1,20 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import net.kenji.epic_fight_mobs_plus.api.IdleActionManager;
 import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
-import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
+import net.kenji.epic_fight_mobs_plus.api.conditions.FoxPounceCondition;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
+import net.kenji.epic_fight_mobs_plus.goals.AnimatedFoxPounceGoal;
+import net.kenji.epic_fight_mobs_plus.goals.TargetChasingWithPredicateGoal;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
-import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
-import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
-import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.animal.Fox;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Animator;
@@ -23,40 +22,25 @@ import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
-import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 import java.util.List;
 
 public class FoxPatch<H extends Fox> extends AnimalPatchBase<Fox> {
-    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
-    private LivingMotion currentOptionalLivingMotion;
-
-
-    public boolean shouldRun = false;
 
     @Override
     public void tick(LivingEvent.LivingTickEvent event) {
-        if (!this.getOriginal().level().isClientSide()) {
-            shouldRun = computeRun();
-            MobsPlusPacketHandler.sendToAll(new ClientPetRunPacket(getOriginal().getId(), shouldRun));
-        }
-        updateMotion(false);
-        if (!this.getOriginal().level().isClientSide()) {
-            MobsPlusPacketHandler.sendToAll(new ClientOptionalLivingMotionPacket(getOriginal().getId(), currentOptionalLivingMotion != null ? currentOptionalLivingMotion.universalOrdinal() : -1));
-        }
         super.tick(event);
     }
 
-    public boolean canRun = false;
     public static int MAX_COUNTER = 20;
     public int isFollowingOwnerCounter = 20;
-    public boolean computeRun() {
+    @Override
+    public boolean computeShouldRun() {
         boolean followGoalActive = false;
 
         for (WrappedGoal wrappedGoal : this.getOriginal().goalSelector.getRunningGoals().toList()) {
@@ -70,13 +54,22 @@ public class FoxPatch<H extends Fox> extends AnimalPatchBase<Fox> {
         // Decrement counter and update flag
         if (isFollowingOwnerCounter > 0) {
             isFollowingOwnerCounter--;
-            canRun = followGoalActive || isFollowingOwnerCounter > 0;
+            shouldRun = followGoalActive || isFollowingOwnerCounter > 0;
         } else {
-            canRun = false;
+            shouldRun = false;
             this.getOriginal().getPersistentData().putBoolean("is_running", false);
         }
 
-        return canRun ||  this.getOriginal().getPersistentData().getBoolean("is_following");
+        return shouldRun ||  this.getOriginal().getPersistentData().getBoolean("is_following");
+    }
+    public boolean isPounceGoalRunning() {
+        for (WrappedGoal goal : this.getOriginal().goalSelector.getRunningGoals().toList()) {
+            if (goal.getGoal() instanceof Fox.FoxPounceGoal || goal.getGoal() instanceof AnimatedFoxPounceGoal) {
+
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -86,6 +79,14 @@ public class FoxPatch<H extends Fox> extends AnimalPatchBase<Fox> {
 
     @Override
     public void updateMotion(boolean b) {
+        if (this.getOriginal().isSitting() ||
+                this.getOriginal().isSleeping() || this.getOriginal().isPouncing()) {
+
+            IdleActionManager.IdleActionState state = IdleActionManager.getIdleActionState(this.getOriginal().getUUID());
+            if (state.animationPlaying) {
+                IdleActionManager.clearIdleActionState(this.quedIdleAction, this, state);
+            }
+        }
         if (this.getOriginal().isSitting()) {
             this.currentLivingMotion = LivingMotions.SIT;
             this.currentCompositeMotion = LivingMotions.SIT;
@@ -100,16 +101,30 @@ public class FoxPatch<H extends Fox> extends AnimalPatchBase<Fox> {
 
             return;
         }
-        super.commonMobUpdateMotion(b);
+        if (isPounceGoalRunning() && !this.getOriginal().isPouncing()) {
+            this.currentLivingMotion = MobsPlusLivingMotions.FOX_POUNCE_READY;
+            this.currentCompositeMotion = MobsPlusLivingMotions.FOX_POUNCE_READY;
+            currentOptionalLivingMotion = currentLivingMotion;
+
+            return;
+        }
+        if (this.getOriginal().isPouncing()) {
+            this.currentLivingMotion = MobsPlusLivingMotions.FOX_POUNCE;
+            this.currentCompositeMotion = MobsPlusLivingMotions.FOX_POUNCE;
+            currentOptionalLivingMotion = currentLivingMotion;
+
+            return;
+        }
+        super.updateMotion(b);
     }
     @Override
     protected void initAI() {
         this.original.goalSelector.addGoal(
                 1,
-                new AnimatedAttackGoal<>(this, new CombatBehaviors.Builder<>().newBehaviorSeries(CombatBehaviors.BehaviorSeries.builder().weight(10).nextBehavior(CombatBehaviors.Behavior.builder().animationBehavior(MobsPlusAnimations.CAT_ATTACK).withinDistance(0.1F, 1.75F))).build(this))
+                new AnimatedAttackGoal<>(this, new CombatBehaviors.Builder<>().newBehaviorSeries(CombatBehaviors.BehaviorSeries.builder().weight(10).nextBehavior(CombatBehaviors.Behavior.builder().predicate(new FoxPounceCondition(true)).animationBehavior(MobsPlusAnimations.CAT_ATTACK).withinDistance(0.1F, 1.75F))).build(this))
         );
-        this.original.goalSelector.addGoal(1, new TargetChasingGoal(this, (PathfinderMob)this.original, (double)1.0F, false));
-
+        this.original.goalSelector.addGoal(1, new TargetChasingWithPredicateGoal(this, (PathfinderMob)this.original, (double)1.0F, false, new FoxPounceCondition(false)));
+        this.getOriginal().goalSelector.addGoal(6, new AnimatedFoxPounceGoal(this));
     }
     @Override
     protected void initAnimator(Animator animator) {
@@ -120,7 +135,24 @@ public class FoxPatch<H extends Fox> extends AnimalPatchBase<Fox> {
         animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.FOX_SIT);
         animator.addLivingAnimation(LivingMotions.SLEEP, MobsPlusAnimations.FOX_SLEEP);
         animator.addLivingAnimation(LivingMotions.DEATH, MobsPlusAnimations.CAT_DEATH);
+        animator.addLivingAnimation(MobsPlusLivingMotions.FOX_POUNCE, MobsPlusAnimations.FOX_POUNCE_LEAP);
+        animator.addLivingAnimation(MobsPlusLivingMotions.FOX_POUNCE_READY, MobsPlusAnimations.FOX_POUNCE_READY);
 
+    }
+    public float getAnimForwardSpeed(float minSpeed, float maxSpeed) {
+
+        double forwardSpeed = getCurrentForwardSpeed();
+
+        if (forwardSpeed < -0.05F) return -1F;
+
+        // Get the horse's actual max walk speed attribute
+        double maxWalkSpeed = getEntityPatch().getOriginal().getAttributeValue(Attributes.MOVEMENT_SPEED);
+
+        // Normalize: 0.0 when still, 1.0 at full walk speed
+        double normalized = Math.min(forwardSpeed / maxWalkSpeed, 1.0);
+
+        // Scale between your known good minimum and maximum playback speed
+        return (float)(minSpeed + normalized * (maxSpeed - minSpeed)) + (computeShouldRun() ? 2.0F : 0);
     }
     @Override
     public LivingMotion getOptionalLivingMotion() {

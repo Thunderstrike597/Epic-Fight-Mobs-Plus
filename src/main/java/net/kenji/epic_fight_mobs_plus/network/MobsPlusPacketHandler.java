@@ -25,6 +25,11 @@ public class MobsPlusPacketHandler {
     }
 
     public static void register() {
+        INSTANCE.messageBuilder(ServerIdleActionPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(ServerIdleActionPacket::decode)
+                .encoder(ServerIdleActionPacket::encode)
+                .consumerMainThread(ServerIdleActionPacket::handle)
+                .add();
         INSTANCE.messageBuilder(ClientPetRunPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(ClientPetRunPacket::decode)
                 .encoder(ClientPetRunPacket::encode)
@@ -34,6 +39,16 @@ public class MobsPlusPacketHandler {
                 .decoder(ClientOptionalLivingMotionPacket::decode)
                 .encoder(ClientOptionalLivingMotionPacket::encode)
                 .consumerMainThread(ClientOptionalLivingMotionPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(ClientIdleActionSyncPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(ClientIdleActionSyncPacket::decode)
+                .encoder(ClientIdleActionSyncPacket::encode)
+                .consumerMainThread(ClientIdleActionSyncPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(ClientPlayAnimationPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(ClientPlayAnimationPacket::decode)
+                .encoder(ClientPlayAnimationPacket::encode)
+                .consumerMainThread(ClientPlayAnimationPacket::handle)
                 .add();
     }
 

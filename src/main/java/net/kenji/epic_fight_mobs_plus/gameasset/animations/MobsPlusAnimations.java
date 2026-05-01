@@ -4,7 +4,6 @@ import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IHorsePatch;
-import net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.patches.DogPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusArmatures;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.CatArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.WolfArmature;
@@ -12,7 +11,8 @@ import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.*;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.AbstractHorseAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.EntityAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.PathNavigationAccessor;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -22,6 +22,7 @@ import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @Mod.EventBusSubscriber(modid = EpicFightMobsPlus.MODID)
 public class MobsPlusAnimations {
@@ -76,6 +77,9 @@ public class MobsPlusAnimations {
     public static AnimationManager.AnimationAccessor<StaticAnimation> FOX_SLEEP;
     public static AnimationManager.AnimationAccessor<StaticAnimation> FOX_SIT;
 
+    public static AnimationManager.AnimationAccessor<StaticAnimation> FOX_POUNCE_READY;
+
+    public static AnimationManager.AnimationAccessor<StaticAnimation> FOX_POUNCE_LEAP;
 
     private static void build(AnimationManager.AnimationBuilder builder){
         BIPED_MOUNT_RIDE_FORWARD = builder.nextAccessor("biped/living/mount_ride_forward", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));
@@ -85,15 +89,15 @@ public class MobsPlusAnimations {
         WOLF_IDLE = builder.nextAccessor("wolf/living/wolf_idle", (accessor -> new StaticAnimation(0.2F, true, accessor, MobsPlusArmatures.WOLF)));
         WOLF_WALK = builder.nextAccessor("wolf/living/wolf_walk", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF)));
         WOLF_RUN = builder.nextAccessor("wolf/living/wolf_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
-            if(entitypatch instanceof DogPatch<?> dogPatch){
-                return (float) dogPatch.getCurrentForwardSpeed() * 2 + speed;
+            if (entitypatch instanceof IAnimalMobPatch patchInterface) {
+                return patchInterface.getAnimForwardSpeed(0.8F, 1.9F);
             }
             return speed;
         })));
         WOLF_SITTING = builder.nextAccessor("wolf/living/wolf_sit", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF)));
         WOLF_DEATH = builder.nextAccessor("wolf/living/wolf_death", (accessor -> new StaticAnimation(0.2F, false, accessor, MobsPlusArmatures.WOLF)));
 
-        WOLF_IDLE_ACTION_1 = builder.nextAccessor("wolf/living/wolf_idle_action_1", (accessor -> new IdleActionAnimation(15, 4.5,0, 2, 16,0.1F, false, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_IDLE_ACTION_1 = builder.nextAccessor("wolf/living/wolf_idle_action_1", (accessor -> new IdleActionAnimation(8, 4.5,0, 2, 16,0.1F, false, accessor, MobsPlusArmatures.WOLF)));
         WOLF_IDLE_ACTION_2 = builder.nextAccessor("wolf/living/wolf_idle_action_2", (accessor -> new IdleActionAnimation(5, 8,0, 3.5, 18, 0.1F, false, accessor, MobsPlusArmatures.WOLF)));
 
         WOLF_SHAKE = builder.nextAccessor("wolf/living/wolf_shake", (accessor -> new StaticAnimation(0.1F, false, accessor, MobsPlusArmatures.WOLF)));
@@ -151,7 +155,7 @@ public class MobsPlusAnimations {
         CAT_WALK = builder.nextAccessor("cat/living/cat_walk", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.CAT)));
         CAT_RUN = builder.nextAccessor("cat/living/cat_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.CAT).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
             if(entitypatch instanceof CatPatch<?> catPatch){
-                return catPatch.getAnimForwardSpeed(0.8F, 2);
+                return (float) (((PathNavigationAccessor)catPatch.getOriginal().getNavigation()).getSpeedModifier() * 2) + speed;
             }
             return speed;
         })));
@@ -164,13 +168,17 @@ public class MobsPlusAnimations {
         FOX_WALK = builder.nextAccessor("fox/living/fox_walk", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.FOX)));
         FOX_RUN = builder.nextAccessor("fox/living/fox_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.FOX)  .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
             if (entitypatch instanceof IAnimalMobPatch patchInterface) {
-                patchInterface.getAnimForwardSpeed(0.8F, 2);
+                if(patchInterface.getEntityPatch().getOriginal() instanceof Fox fox)
+                    return (float) (((PathNavigationAccessor)fox.getNavigation()).getSpeedModifier() * 2) + speed;
             }
             return speed;
         })));
         FOX_SLEEP = builder.nextAccessor("fox/living/fox_sleep", (accessor -> new StaticAnimation(0.2F, true, accessor, MobsPlusArmatures.FOX)));
         FOX_SIT = builder.nextAccessor("fox/living/fox_sit", (accessor -> new StaticAnimation(0.2F, true, accessor, MobsPlusArmatures.FOX)));
-
+        FOX_POUNCE_READY = builder.nextAccessor("fox/living/fox_pounce_ready", (accessor -> new StaticAnimation(0.2F, true, accessor, MobsPlusArmatures.FOX)));
+        FOX_POUNCE_LEAP = builder.nextAccessor("fox/living/fox_pounce_leap", (accessor -> new StaticAnimation(0.2F, false, accessor, MobsPlusArmatures.FOX).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
+            return 1.6F;
+        })));
     }
 
 

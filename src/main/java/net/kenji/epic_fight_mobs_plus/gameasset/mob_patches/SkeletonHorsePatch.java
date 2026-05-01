@@ -27,8 +27,6 @@ import yesman.epicfight.world.damagesource.StunType;
 import java.util.List;
 
 public class SkeletonHorsePatch<H extends AbstractHorse> extends AnimalPatchBase<SkeletonHorse> implements IHorsePatch {
-    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
-    private LivingMotion currentOptionalLivingMotion;
 
 
     @Override
@@ -42,18 +40,10 @@ public class SkeletonHorsePatch<H extends AbstractHorse> extends AnimalPatchBase
 
     @Override
     public void tick(LivingEvent.LivingTickEvent event) {
-        if (!this.getOriginal().level().isClientSide()) {
-            cachedShouldRun = computeShouldRun();
-            MobsPlusPacketHandler.sendToAll(new ClientPetRunPacket(getOriginal().getId(), cachedShouldRun));
-        }
-        updateMotion(false);
+        super.tick(event);
         if(getStoredJumpSpeed() != -1 && this.getOriginal().onGround()){
             setStoredJumpSpeed(-1);
         }
-        if (!this.getOriginal().level().isClientSide()) {
-            MobsPlusPacketHandler.sendToAll(new ClientOptionalLivingMotionPacket(getOriginal().getId(), currentOptionalLivingMotion != null ? currentOptionalLivingMotion.universalOrdinal() : -1));
-        }
-        super.tick(event);
     }
 
     @Override

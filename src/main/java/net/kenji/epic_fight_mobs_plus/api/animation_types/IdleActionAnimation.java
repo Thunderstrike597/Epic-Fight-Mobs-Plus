@@ -1,7 +1,12 @@
 package net.kenji.epic_fight_mobs_plus.api.animation_types;
 
+import doggytalents.common.network.PacketHandler;
 import net.kenji.epic_fight_mobs_plus.api.IdleActionManager;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
+import net.kenji.epic_fight_mobs_plus.network.ClientIdleActionSyncPacket;
+import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
+import net.kenji.epic_fight_mobs_plus.network.ServerIdleActionPacket;
+import org.jline.utils.Log;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -50,11 +55,17 @@ public class IdleActionAnimation extends StaticAnimation {
     @Override
     public void end(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> nextAnimation, boolean isEnd) {
         super.end(entitypatch, nextAnimation, isEnd);
-        if(entitypatch instanceof IAnimalMobPatch patchInterface){
-            if(patchInterface.getQuedIdleAction() != null){
-                if(this == patchInterface.getQuedIdleAction().get()){
-                    IdleActionManager.clearIdleActionState(this.getAccessor(), patchInterface, IdleActionManager.getIdleActionState(entitypatch.getOriginal().getUUID()));
-                }
+        if (!isEnd) return;
+
+
+        if (entitypatch instanceof IAnimalMobPatch patchInterface) {
+            if (patchInterface.getQuedIdleAction() != null && this == patchInterface.getQuedIdleAction().get()) {
+                IdleActionManager.clearIdleActionState(
+                        this.getAccessor(),
+                        patchInterface,
+                        IdleActionManager.getIdleActionState(entitypatch.getOriginal().getUUID())
+                );        if (entitypatch.getOriginal().level().isClientSide()) return; // server handles state
+
             }
         }
     }

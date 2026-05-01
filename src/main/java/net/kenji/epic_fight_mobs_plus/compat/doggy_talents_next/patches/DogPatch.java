@@ -2,6 +2,7 @@ package net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.patches;
 
 import doggytalents.common.entity.Dog;
 import doggytalents.common.entity.ai.DogFollowOwnerGoal;
+import net.kenji.epic_fight_mobs_plus.api.IdleActionManager;
 import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
@@ -32,29 +33,18 @@ import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 import java.util.List;
 
 public class DogPatch<W extends TamableAnimal> extends AnimalPatchBase<Dog> {
-    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
-    private LivingMotion currentOptionalLivingMotion;
 
     public boolean isFollowingOwner = false;
     public static int MAX_COUNTER = 20;
     public int isFollowingOwnerCounter = 20;
-    public boolean shouldRun = false;
 
 
     @Override
     public void tick(LivingEvent.LivingTickEvent event) {
-        if (!this.getOriginal().level().isClientSide()) {
-            shouldRun = computeShouldRun();
-            MobsPlusPacketHandler.sendToAll(new ClientPetRunPacket(getOriginal().getId(), shouldRun));
-        }
-        updateMotion(false);
-        if (!this.getOriginal().level().isClientSide()) {
-            MobsPlusPacketHandler.sendToAll(new ClientOptionalLivingMotionPacket(getOriginal().getId(), currentOptionalLivingMotion != null ? currentOptionalLivingMotion.universalOrdinal() : -1));
-        }
         super.tick(event);
     }
 
-
+    @Override
     public boolean computeShouldRun() {
         boolean followGoalActive = false;
 
@@ -82,6 +72,15 @@ public class DogPatch<W extends TamableAnimal> extends AnimalPatchBase<Dog> {
 
     @Override
     public void updateMotion(boolean b) {
+        if (this.getOriginal().isInSittingPose() ||
+                ((DogAccessor)this.getOriginal()).getIsShaking() ||
+                this.getOriginal().isDefeated()) {
+
+            IdleActionManager.IdleActionState state = IdleActionManager.getIdleActionState(this.getOriginal().getUUID());
+            if (state.animationPlaying) {
+                IdleActionManager.clearIdleActionState(this.quedIdleAction, this, state);
+            }
+        }
         if (this.getOriginal().isInSittingPose()) {
             this.currentLivingMotion = LivingMotions.SIT;
             this.currentCompositeMotion = LivingMotions.SIT;
@@ -100,8 +99,7 @@ public class DogPatch<W extends TamableAnimal> extends AnimalPatchBase<Dog> {
             currentOptionalLivingMotion = currentLivingMotion;
             return;
         }
-        currentOptionalLivingMotion = null;
-        super.commonMobUpdateMotion(b);
+        super.updateMotion(b);
     }
 
     @Override

@@ -1,15 +1,49 @@
 package net.kenji.epic_fight_mobs_plus.api.abstract_classes;
 
+import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
+import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
+import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
+import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
-import javax.swing.text.html.parser.Entity;
-
 public abstract class AnimalPatchBase<T extends Animal> extends MobPatch<T> implements IAnimalMobPatch {
+    protected LivingMotion currentOptionalLivingMotion;
+    public boolean shouldRun = false;
+
+    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
+
+    public boolean computeShouldRun() {
+        return false;
+    }
+    @Override
+    public void updateMotion(boolean b) {
+
+        currentOptionalLivingMotion = null;
+        super.commonMobUpdateMotion(b);
+    }
+
+    @Override
+    public void tick(LivingEvent.LivingTickEvent event) {
+        if (!this.getOriginal().level().isClientSide()) {
+            shouldRun = computeShouldRun();
+            MobsPlusPacketHandler.sendToAll(new ClientPetRunPacket(getOriginal().getId(), shouldRun));
+        }
+
+        super.tick(event);
+
+
+        updateMotion(false);
+        if (!this.getOriginal().level().isClientSide()) {
+            MobsPlusPacketHandler.sendToAll(new ClientOptionalLivingMotionPacket(getOriginal().getId(), currentOptionalLivingMotion != null ? currentOptionalLivingMotion.universalOrdinal() : -1));
+        }
+    }
 
     public float getAnimForwardSpeed(float minSpeed, float maxSpeed) {
 
