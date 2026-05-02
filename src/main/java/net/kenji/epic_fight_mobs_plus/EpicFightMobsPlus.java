@@ -6,6 +6,7 @@ import net.kenji.epic_fight_mobs_plus.compat.CompatEvents;
 import net.kenji.epic_fight_mobs_plus.events.MobPatchEvents;
 import net.kenji.epic_fight_mobs_plus.events.client_events.EpicFightClientEvents;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusArmatures;
+import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusColliderPreset;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -70,6 +72,7 @@ public class EpicFightMobsPlus {
         modEventBus.addListener(MobPatchEvents::commonSetup);
         modEventBus.addListener(MobsPlusAnimations::registerAnimations);
         CompatEvents.OnInit(modEventBus);
+        MinecraftForge.EVENT_BUS.addListener(this::addReloadListnerEvent);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modEventBus.addListener(EpicFightClientEvents::registerPatchedEntityRenderers);        }
@@ -82,7 +85,9 @@ public class EpicFightMobsPlus {
         event.enqueueWork(MobsPlusPacketHandler::register);
     }
 
-
+    private void addReloadListnerEvent(AddReloadListenerEvent event) {
+        event.addListener(new MobsPlusColliderPreset());
+    }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent

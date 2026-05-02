@@ -67,6 +67,12 @@ public class MobPatchFactory {
                 (e) -> FoxPatch::new,
                 (context, type) -> new FoxPatchRenderer((EntityRendererProvider.Context) context, type)
         ));
+        mobPatches.add(new MobPatchDefinitions(
+                EntityType.POLAR_BEAR,
+                MobsPlusArmatures.POLAR_BEAR,
+                (e) -> PolarBearPatch::new,
+                (context, type) -> new PolarBearPatchRenderer((EntityRendererProvider.Context) context, type)
+        ));
     }
     @FunctionalInterface
     public interface RendererFactory {

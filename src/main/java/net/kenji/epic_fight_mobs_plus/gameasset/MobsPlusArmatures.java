@@ -4,10 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
-import net.kenji.epic_fight_mobs_plus.gameasset.armatures.CatArmature;
-import net.kenji.epic_fight_mobs_plus.gameasset.armatures.FoxArmature;
-import net.kenji.epic_fight_mobs_plus.gameasset.armatures.HorseArmature;
-import net.kenji.epic_fight_mobs_plus.gameasset.armatures.WolfArmature;
+import net.kenji.epic_fight_mobs_plus.gameasset.armatures.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -34,5 +31,6 @@ public class MobsPlusArmatures {
     public static final Armatures.ArmatureAccessor<HorseArmature> HORSE = Armatures.ArmatureAccessor.<HorseArmature>create(EpicFightMobsPlus.MODID, "entity/horse", HorseArmature::new);
     public static final Armatures.ArmatureAccessor<CatArmature> CAT = Armatures.ArmatureAccessor.<CatArmature>create(EpicFightMobsPlus.MODID, "entity/cat", CatArmature::new);
     public static final Armatures.ArmatureAccessor<FoxArmature> FOX = Armatures.ArmatureAccessor.<FoxArmature>create(EpicFightMobsPlus.MODID, "entity/fox", FoxArmature::new);
+    public static final Armatures.ArmatureAccessor<PolarBearArmature> POLAR_BEAR = Armatures.ArmatureAccessor.<PolarBearArmature>create(EpicFightMobsPlus.MODID, "entity/polar_bear", PolarBearArmature::new);
 
 }

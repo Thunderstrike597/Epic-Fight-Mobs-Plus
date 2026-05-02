@@ -51,7 +51,10 @@ public abstract class AnimalPatchBase<T extends Animal> extends MobPatch<T> impl
             }
         }
     }
-
+    @Override
+    public void setShouldRun(boolean value) {
+        shouldRun = true;
+    }
     public float getAnimForwardSpeed(float minSpeed, float maxSpeed) {
 
         double forwardSpeed = getCurrentForwardSpeed();

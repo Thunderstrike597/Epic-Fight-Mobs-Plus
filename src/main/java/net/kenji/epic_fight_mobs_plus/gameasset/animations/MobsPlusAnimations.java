@@ -6,8 +6,10 @@ import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleVariantAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IHorsePatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusArmatures;
+import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusColliderPreset;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.CatArmature;
+import net.kenji.epic_fight_mobs_plus.gameasset.armatures.PolarBearArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.WolfArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.*;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.AbstractHorseAccessor;
@@ -94,6 +96,13 @@ public class MobsPlusAnimations {
     public static AnimationManager.AnimationAccessor<StaticAnimation> FOX_POUNCE_READY;
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> FOX_POUNCE_LEAP;
+
+
+    public static AnimationManager.AnimationAccessor<StaticAnimation> POLAR_BEAR_IDLE;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> POLAR_BEAR_WALK;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> POLAR_BEAR_RUN;
+
+    public static AnimationManager.AnimationAccessor<AttackAnimation> POLAR_BEAR_ATTACK;
 
     private static void build(AnimationManager.AnimationBuilder builder){
         BIPED_MOUNT_RIDE_FORWARD = builder.nextAccessor("biped/living/mount_ride_forward", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));
@@ -203,6 +212,16 @@ public class MobsPlusAnimations {
         FOX_POUNCE_LEAP = builder.nextAccessor("fox/living/fox_pounce_leap", (accessor -> new StaticAnimation(0.2F, false, accessor, MobsPlusArmatures.FOX).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
             return 1.6F;
         })));
+        POLAR_BEAR_IDLE = builder.nextAccessor("polar_bear/living/polar_bear_idle", (accessor -> new StaticAnimation(0.2F, true, accessor, MobsPlusArmatures.POLAR_BEAR)));
+        POLAR_BEAR_WALK = builder.nextAccessor("polar_bear/living/polar_bear_walk", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.POLAR_BEAR)));
+        POLAR_BEAR_RUN = builder.nextAccessor("polar_bear/living/polar_bear_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.POLAR_BEAR).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
+            if(entitypatch instanceof PolarBearPatch<?> catPatch){
+                return (float) (((PathNavigationAccessor)catPatch.getOriginal().getNavigation()).getSpeedModifier() * 2) + speed;
+            }
+            return speed;
+        })));
+        POLAR_BEAR_ATTACK = builder.nextAccessor("polar_bear/combat/polar_bear_attack", (accessor) -> new AttackAnimation(0.15F, 0.10F, 0.15F, 0.24F, 0.5F, MobsPlusColliderPreset.POLAR_BEAR_COLLIDER, ((PolarBearArmature) MobsPlusArmatures.POLAR_BEAR.get()).chestUpper, accessor, MobsPlusArmatures.POLAR_BEAR));
+
     }
 
 
