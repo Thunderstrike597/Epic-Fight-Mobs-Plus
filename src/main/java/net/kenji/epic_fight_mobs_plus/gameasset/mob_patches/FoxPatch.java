@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import com.mojang.datafixers.util.Pair;
 import net.kenji.epic_fight_mobs_plus.api.IdleActionManager;
 import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
@@ -199,7 +200,7 @@ public class FoxPatch<H extends Fox> extends AnimalPatchBase<Fox> {
     }
 
     @Override
-    public List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> getIdleActionAnimations() {
+    public List<Pair<LivingMotion, AnimationManager.AnimationAccessor<? extends IdleActionAnimation>>> getIdleActionAnimations() {
         return List.of();
     }
     @Override

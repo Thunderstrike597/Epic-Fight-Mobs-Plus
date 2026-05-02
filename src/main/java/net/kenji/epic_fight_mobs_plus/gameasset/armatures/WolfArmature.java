@@ -16,6 +16,8 @@ public class WolfArmature extends Armature {
     public final Joint earL;
     public final Joint eyeR;
     public final Joint eyeL;
+    public final Joint eyelidR;
+    public final Joint eyelidL;
     // Front legs
     public final Joint shoulderFR;
     public final Joint thighFR;
@@ -54,7 +56,8 @@ public class WolfArmature extends Armature {
         this.earL = getOrLogException(jointMap, "Ear_L");
         this.eyeR = getOrLogException(jointMap, "Eye_R");
         this.eyeL = getOrLogException(jointMap, "Eye_L");
-
+        this.eyelidR = getOrLogException(jointMap, "EyeLid_R");
+        this.eyelidL = getOrLogException(jointMap, "EyeLid_L");
         // Front Right
         this.shoulderFR = getOrLogException(jointMap, "Shoulder_FR");
         this.thighFR = getOrLogException(jointMap, "Thigh_FR");

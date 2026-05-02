@@ -2,9 +2,11 @@ package net.kenji.epic_fight_mobs_plus.gameasset.animations;
 
 import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
+import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleVariantAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IHorsePatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusArmatures;
+import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.CatArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.WolfArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.*;
@@ -17,6 +19,7 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -35,10 +38,19 @@ public class MobsPlusAnimations {
     public static AnimationManager.AnimationAccessor<StaticAnimation> BIPED_MOUNT_RIDE_BACKWARD;
 
 
-    public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_IDLE;
+    public static AnimationManager.AnimationAccessor<IdleVariantAnimation> WOLF_IDLE;
+    public static AnimationManager.AnimationAccessor<IdleVariantAnimation> WOLF_IDLE_VAR2;
+    public static AnimationManager.AnimationAccessor<IdleVariantAnimation> WOLF_IDLE_VAR3;
+    public static AnimationManager.AnimationAccessor<IdleVariantAnimation> WOLF_IDLE_VAR4;
+
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_WALK;
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_RUN;
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_SITTING;
+    public static AnimationManager.AnimationAccessor<IdleActionAnimation> WOLF_SIT_ACTION_1;
+    public static AnimationManager.AnimationAccessor<IdleActionAnimation> WOLF_SIT_ACTION_2;
+    public static AnimationManager.AnimationAccessor<IdleActionAnimation> WOLF_SIT_ACTION_3;
+    public static AnimationManager.AnimationAccessor<IdleActionAnimation> WOLF_SIT_ACTION_4;
+
     public static AnimationManager.AnimationAccessor<StaticAnimation> WOLF_DEATH;
 
     public static AnimationManager.AnimationAccessor<IdleActionAnimation> WOLF_IDLE_ACTION_1;
@@ -66,6 +78,8 @@ public class MobsPlusAnimations {
     public static AnimationManager.AnimationAccessor<StaticAnimation> CAT_WALK;
     public static AnimationManager.AnimationAccessor<StaticAnimation> CAT_RUN;
     public static AnimationManager.AnimationAccessor<StaticAnimation> CAT_SITTING;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> CAT_LAYING;
+
     public static AnimationManager.AnimationAccessor<StaticAnimation> CAT_DEATH;
 
     public static AnimationManager.AnimationAccessor<AttackAnimation> CAT_ATTACK;
@@ -86,7 +100,11 @@ public class MobsPlusAnimations {
         BIPED_MOUNT_RIDE_BACKWARD = builder.nextAccessor("biped/living/mount_ride_backward", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));
 
 
-        WOLF_IDLE = builder.nextAccessor("wolf/living/wolf_idle", (accessor -> new StaticAnimation(0.2F, true, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_IDLE = builder.nextAccessor("wolf/living/wolf_idle", (accessor -> new IdleVariantAnimation(8, 2, LivingMotions.IDLE, 0.2F, true, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_IDLE_VAR2 = builder.nextAccessor("wolf/living/wolf_idle_var2", (accessor -> new IdleVariantAnimation(5, 3, MobsPlusLivingMotions.IDLE_VAR2, 0.2F, true, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_IDLE_VAR3 = builder.nextAccessor("wolf/living/wolf_idle_var3", (accessor -> new IdleVariantAnimation(2, 4,MobsPlusLivingMotions.IDLE_VAR3, 0.2F, true, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_IDLE_VAR4 = builder.nextAccessor("wolf/living/wolf_idle_var4", (accessor -> new IdleVariantAnimation(3, 2.5,MobsPlusLivingMotions.IDLE_VAR4, 0.2F, true, accessor, MobsPlusArmatures.WOLF)));
+
         WOLF_WALK = builder.nextAccessor("wolf/living/wolf_walk", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF)));
         WOLF_RUN = builder.nextAccessor("wolf/living/wolf_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.WOLF).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
             if (entitypatch instanceof IAnimalMobPatch patchInterface) {
@@ -99,6 +117,10 @@ public class MobsPlusAnimations {
 
         WOLF_IDLE_ACTION_1 = builder.nextAccessor("wolf/living/wolf_idle_action_1", (accessor -> new IdleActionAnimation(8, 4.5,0, 2, 16,0.1F, false, accessor, MobsPlusArmatures.WOLF)));
         WOLF_IDLE_ACTION_2 = builder.nextAccessor("wolf/living/wolf_idle_action_2", (accessor -> new IdleActionAnimation(5, 8,0, 3.5, 18, 0.1F, false, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_SIT_ACTION_1 = builder.nextAccessor("wolf/living/wolf_sit_action_1", (accessor -> new IdleActionAnimation(5, 8,0, 3.5, 18, 0.1F, false, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_SIT_ACTION_2 = builder.nextAccessor("wolf/living/wolf_sit_action_2", (accessor -> new IdleActionAnimation(3, 10,0, 3.5, 18, 0.1F, false, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_SIT_ACTION_3 = builder.nextAccessor("wolf/living/wolf_sit_action_3", (accessor -> new IdleActionAnimation(4, 9,0, 3.5, 18, 0.1F, false, accessor, MobsPlusArmatures.WOLF)));
+        WOLF_SIT_ACTION_4 = builder.nextAccessor("wolf/living/wolf_sit_action_4", (accessor -> new IdleActionAnimation(2, 12,0, 3.5, 18, 0.1F, false, accessor, MobsPlusArmatures.WOLF)));
 
         WOLF_SHAKE = builder.nextAccessor("wolf/living/wolf_shake", (accessor -> new StaticAnimation(0.1F, false, accessor, MobsPlusArmatures.WOLF)));
         WOLF_DYING = builder.nextAccessor("wolf/living/wolf_dying", (accessor -> new StaticAnimation(0.1F, true, accessor, MobsPlusArmatures.WOLF)));
@@ -160,6 +182,8 @@ public class MobsPlusAnimations {
             return speed;
         })));
         CAT_SITTING = builder.nextAccessor("cat/living/cat_sit", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.CAT)));
+        CAT_LAYING = builder.nextAccessor("cat/living/cat_lay", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.CAT)));
+
         CAT_DEATH = builder.nextAccessor("cat/living/cat_death", (accessor -> new StaticAnimation(0.2F, false, accessor, MobsPlusArmatures.CAT)));
 
         CAT_ATTACK = builder.nextAccessor("cat/combat/cat_attack", (accessor) -> new AttackAnimation(0.15F, 0.08F, 0.10F, 0.12F, 0.5F, ColliderPreset.FIST, ((CatArmature) MobsPlusArmatures.CAT.get()).head, accessor, MobsPlusArmatures.CAT));

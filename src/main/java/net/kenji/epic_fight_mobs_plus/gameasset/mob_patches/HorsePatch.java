@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import com.mojang.datafixers.util.Pair;
 import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
@@ -116,8 +117,11 @@ public class HorsePatch<H extends AbstractHorse> extends AnimalPatchBase<Horse> 
     }
 
     @Override
-    public List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> getIdleActionAnimations() {
-        return List.of(MobsPlusAnimations.HORSE_IDLE_ACTION_1, MobsPlusAnimations.HORSE_IDLE_ACTION_2, MobsPlusAnimations.HORSE_IDLE_ACTION_3, MobsPlusAnimations.HORSE_IDLE_ACTION_4);
+    public List<Pair<LivingMotion, AnimationManager.AnimationAccessor<? extends IdleActionAnimation>>> getIdleActionAnimations() {
+        return List.of(
+                new Pair<>(LivingMotions.IDLE, MobsPlusAnimations.HORSE_IDLE_ACTION_1),
+                new Pair<>(LivingMotions.IDLE, MobsPlusAnimations.HORSE_IDLE_ACTION_2)
+        );
     }
 
     @Override

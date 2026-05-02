@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.api;
 
+import com.mojang.datafixers.util.Pair;
 import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
@@ -14,8 +15,13 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jline.utils.Log;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.AnimationPlayer;
+import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
+import yesman.epicfight.api.animation.types.DynamicAnimation;
+import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -53,21 +59,29 @@ public class IdleActionManager {
                 if (!state.animationPlaying) {
                     tickCooldowns(state);
                 }
-                if (livingEntityPatch.getCurrentLivingMotion() == LivingMotions.IDLE) {
-                    if (!state.animationPlaying) {
-                        handleIdleActionAssign(patchInterface, state);
+                List<LivingMotion> motions = new ArrayList<>();
+
+                patchInterface.getIdleActionAnimations().forEach(pair ->{
+                    if(!motions.contains(pair.getFirst())){
+                        motions.add(pair.getFirst());
+                    }
+                });
+
+                    if (motions.contains(livingEntityPatch.getCurrentLivingMotion())) {
+                        if (!state.animationPlaying) {
+                            handleIdleActionAssign(patchInterface, state);
+                        } else {
+                            handleAnimationPlay(patchInterface, state);
+                        }
                     } else {
-                        handleAnimationPlay(patchInterface, state);
+                        if (state.animationPlaying) {
+                            AssetAccessor<? extends IdleActionAnimation> queued = patchInterface.getQuedIdleAction();
+                            clearIdleActionState(queued, patchInterface, state);
+                            // Send null to tell clients to clear
+                            MobsPlusPacketHandler.sendToAll(new ClientIdleActionSyncPacket(
+                                    livingEntityPatch.getOriginal().getId(), null));
+                        }
                     }
-                }  else {
-                    if (state.animationPlaying) {
-                        AssetAccessor<? extends IdleActionAnimation> queued = patchInterface.getQuedIdleAction();
-                        clearIdleActionState(queued, patchInterface, state);
-                        // Send null to tell clients to clear
-                        MobsPlusPacketHandler.sendToAll(new ClientIdleActionSyncPacket(
-                                livingEntityPatch.getOriginal().getId(), null));
-                    }
-                }
             }
         });
     }
@@ -85,11 +99,19 @@ public class IdleActionManager {
     }
 
     private static void handleIdleActionAssign(IAnimalMobPatch patchInterface, IdleActionState state) {
-        List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> animations = patchInterface.getIdleActionAnimations();
+        List<Pair<LivingMotion, AnimationManager.AnimationAccessor<? extends IdleActionAnimation>>> animations = patchInterface.getIdleActionAnimations();
         if (animations.isEmpty()) return;
+        List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> finalAnims = new ArrayList<>();
+        animations.forEach(pair -> {
+            if(pair.getFirst() == patchInterface.getEntityPatch().getCurrentLivingMotion()){
+                finalAnims.add(pair.getSecond());
+            }
+        });
+
+        if (finalAnims.isEmpty()) return;
 
         // Filter to only IdleActionAnimation instances (ignore plain StaticAnimations)
-        List<IdleActionAnimation> idleAnims = animations.stream()
+        List<IdleActionAnimation> idleAnims = finalAnims.stream()
                 .map(AssetAccessor::get) // however you resolve the accessor
                 .filter(a -> a instanceof IdleActionAnimation)
                 .map(a -> (IdleActionAnimation) a)
@@ -160,6 +182,14 @@ public class IdleActionManager {
 
         if (idleAnim != null) {
             state.cooldowns.forEach((k, cooldown) -> state.cooldowns.put(k, k.getCooldownTicks()));
+            AnimationPlayer animPLayer = patchInterface.getEntityPatch().getAnimator().getPlayerFor(null);
+            if(animPLayer != null){
+                AssetAccessor<? extends DynamicAnimation> accessor = animPLayer.getAnimation();
+                if(accessor != null){
+                    if(accessor.get() == idleAnim)
+                        idleAnim.get().end(patchInterface.getEntityPatch(), null, false);
+                }
+            }
         }
         patchInterface.queIdleAction(null);
         state.animationPlaying = false;

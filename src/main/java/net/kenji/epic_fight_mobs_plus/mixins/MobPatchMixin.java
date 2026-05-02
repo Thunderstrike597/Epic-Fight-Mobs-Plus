@@ -1,6 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.mixins;
 
-import net.kenji.epic_fight_mobs_plus.api.IdleActionManager;
+import net.kenji.epic_fight_mobs_plus.api.IdleVarientManager;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,7 +32,7 @@ public class MobPatchMixin {
                     else patch.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
                 }
                 else if(patch.getOptionalLivingMotion() == null)
-                        patch.getEntityPatch().currentLivingMotion = LivingMotions.IDLE;
+                        patch.getEntityPatch().currentLivingMotion = IdleVarientManager.getIdleVarientState(self.getOriginal().getUUID()).currentLivingMotion;
                 else{
                     patch.getEntityPatch().currentLivingMotion = patch.getOptionalLivingMotion();
                 }

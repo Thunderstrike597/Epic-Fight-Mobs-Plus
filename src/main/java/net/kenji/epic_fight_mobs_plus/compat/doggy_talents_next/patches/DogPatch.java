@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.patches;
 
+import com.mojang.datafixers.util.Pair;
 import doggytalents.common.entity.Dog;
 import doggytalents.common.entity.ai.DogFollowOwnerGoal;
 import net.kenji.epic_fight_mobs_plus.api.IdleActionManager;
@@ -32,7 +33,7 @@ import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 import java.util.List;
 
-public class DogPatch<W extends TamableAnimal> extends AnimalPatchBase<Dog> {
+public class DogPatch<D extends Dog> extends AnimalPatchBase<Dog> {
 
     public boolean isFollowingOwner = false;
     public static int MAX_COUNTER = 20;
@@ -72,8 +73,7 @@ public class DogPatch<W extends TamableAnimal> extends AnimalPatchBase<Dog> {
 
     @Override
     public void updateMotion(boolean b) {
-        if (this.getOriginal().isInSittingPose() ||
-                ((DogAccessor)this.getOriginal()).getIsShaking() ||
+        if (((DogAccessor)this.getOriginal()).getIsShaking() ||
                 this.getOriginal().isDefeated()) {
 
             IdleActionManager.IdleActionState state = IdleActionManager.getIdleActionState(this.getOriginal().getUUID());
@@ -103,6 +103,14 @@ public class DogPatch<W extends TamableAnimal> extends AnimalPatchBase<Dog> {
     }
 
     @Override
+    public boolean blockIdleActionAnimation() {
+        if(this.getOriginal().getMode().shouldFollowOwner() || this.getOriginal().isAggressive()){
+            return true;
+        }
+        return super.blockIdleActionAnimation();
+    }
+
+    @Override
     public LivingMotion getCurrentLivingMotion() {
         return this.currentLivingMotion;
     }
@@ -121,6 +129,9 @@ public class DogPatch<W extends TamableAnimal> extends AnimalPatchBase<Dog> {
         super.initAnimator(animator);
 
         animator.addLivingAnimation(LivingMotions.IDLE, MobsPlusAnimations.WOLF_IDLE);
+        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR2, MobsPlusAnimations.WOLF_IDLE_VAR2);
+        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR3, MobsPlusAnimations.WOLF_IDLE_VAR3);
+        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR4, MobsPlusAnimations.WOLF_IDLE_VAR4);
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.WOLF_WALK);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.WOLF_RUN);
         animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.WOLF_SITTING);
@@ -171,8 +182,15 @@ public class DogPatch<W extends TamableAnimal> extends AnimalPatchBase<Dog> {
     }
 
     @Override
-    public List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> getIdleActionAnimations() {
-        return List.of(MobsPlusAnimations.WOLF_IDLE_ACTION_1, MobsPlusAnimations.WOLF_IDLE_ACTION_2);
+    public List<Pair<LivingMotion, AnimationManager.AnimationAccessor<? extends IdleActionAnimation>>> getIdleActionAnimations() {
+        return List.of(
+                new Pair<>(LivingMotions.IDLE, MobsPlusAnimations.WOLF_IDLE_ACTION_1),
+                new Pair<>(LivingMotions.IDLE, MobsPlusAnimations.WOLF_IDLE_ACTION_2),
+                new Pair<>(LivingMotions.SIT, MobsPlusAnimations.WOLF_SIT_ACTION_1),
+                new Pair<>(LivingMotions.SIT, MobsPlusAnimations.WOLF_SIT_ACTION_2),
+                new Pair<>(LivingMotions.SIT, MobsPlusAnimations.WOLF_SIT_ACTION_3),
+                new Pair<>(LivingMotions.SIT, MobsPlusAnimations.WOLF_SIT_ACTION_4)
+                );
     }
 
     @Override
@@ -193,7 +211,7 @@ public class DogPatch<W extends TamableAnimal> extends AnimalPatchBase<Dog> {
         return this.getCurrentLivingMotion() == MobsPlusLivingMotions.IDLE_ACTION;
     }
     @Override
-    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> getQuedIdleAction() {
+    public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> getQuedIdleAction(){
         return quedIdleAction;
     }
 

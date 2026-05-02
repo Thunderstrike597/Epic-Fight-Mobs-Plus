@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import com.mojang.datafixers.util.Pair;
 import net.kenji.epic_fight_mobs_plus.api.IdleActionManager;
 import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
@@ -71,8 +72,7 @@ public class WolfPatch<W extends TamableAnimal> extends AnimalPatchBase<Wolf> {
 
     @Override
     public void updateMotion(boolean b) {
-        if (this.getOriginal().isInSittingPose() ||
-                ((WolfAccessor)this.getOriginal()).getIsShaking()) {
+        if (((WolfAccessor)this.getOriginal()).getIsShaking()) {
 
             IdleActionManager.IdleActionState state = IdleActionManager.getIdleActionState(this.getOriginal().getUUID());
             if (state.animationPlaying) {
@@ -115,14 +115,25 @@ public class WolfPatch<W extends TamableAnimal> extends AnimalPatchBase<Wolf> {
         super.initAnimator(animator);
 
         animator.addLivingAnimation(LivingMotions.IDLE, MobsPlusAnimations.WOLF_IDLE);
+        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR2, MobsPlusAnimations.WOLF_IDLE_VAR2);
+        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR3, MobsPlusAnimations.WOLF_IDLE_VAR3);
+        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR4, MobsPlusAnimations.WOLF_IDLE_VAR4);
+
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.WOLF_WALK);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.WOLF_RUN);
         animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.WOLF_SITTING);
         animator.addLivingAnimation(LivingMotions.DEATH, MobsPlusAnimations.WOLF_DEATH);
 
         animator.addLivingAnimation(MobsPlusLivingMotions.WOLF_SHAKE_OFF, MobsPlusAnimations.WOLF_SHAKE);
-    }
 
+    }
+    @Override
+    public boolean blockIdleActionAnimation() {
+        if(this.getOriginal().isAggressive()){
+            return true;
+        }
+        return super.blockIdleActionAnimation();
+    }
 
     @Override
     public AssetAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {
@@ -161,8 +172,15 @@ public class WolfPatch<W extends TamableAnimal> extends AnimalPatchBase<Wolf> {
     }
 
     @Override
-    public List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> getIdleActionAnimations() {
-        return List.of(MobsPlusAnimations.WOLF_IDLE_ACTION_1, MobsPlusAnimations.WOLF_IDLE_ACTION_2);
+    public List<Pair<LivingMotion, AnimationManager.AnimationAccessor<? extends IdleActionAnimation>>> getIdleActionAnimations() {
+        return List.of(
+                new Pair<>(LivingMotions.IDLE, MobsPlusAnimations.WOLF_IDLE_ACTION_1),
+                new Pair<>(LivingMotions.IDLE, MobsPlusAnimations.WOLF_IDLE_ACTION_2),
+                new Pair<>(LivingMotions.SIT, MobsPlusAnimations.WOLF_SIT_ACTION_1),
+                new Pair<>(LivingMotions.SIT, MobsPlusAnimations.WOLF_SIT_ACTION_2),
+                new Pair<>(LivingMotions.SIT, MobsPlusAnimations.WOLF_SIT_ACTION_3),
+                new Pair<>(LivingMotions.SIT, MobsPlusAnimations.WOLF_SIT_ACTION_4)
+        );
     }
 
     @Override

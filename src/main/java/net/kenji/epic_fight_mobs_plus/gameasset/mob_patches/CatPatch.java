@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 
+import com.mojang.datafixers.util.Pair;
 import net.kenji.epic_fight_mobs_plus.api.IdleActionManager;
 import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
@@ -77,11 +78,17 @@ public class CatPatch<H extends Cat> extends AnimalPatchBase<Cat> {
 
     @Override
     public void updateMotion(boolean b) {
-        if (this.getOriginal().isInSittingPose()) {
+        if (this.getOriginal().isInSittingPose() || this.getOriginal().isLying()) {
             IdleActionManager.IdleActionState state = IdleActionManager.getIdleActionState(this.getOriginal().getUUID());
             if (state.animationPlaying) {
                 IdleActionManager.clearIdleActionState(this.quedIdleAction, this, state);
             }
+        }
+        if (this.getOriginal().isLying()) {
+            this.currentLivingMotion = MobsPlusLivingMotions.CAT_LAY;
+            this.currentCompositeMotion = MobsPlusLivingMotions.CAT_LAY;
+            currentOptionalLivingMotion = currentLivingMotion;
+            return;
         }
         if (this.getOriginal().isInSittingPose()) {
             this.currentLivingMotion = LivingMotions.SIT;
@@ -89,6 +96,7 @@ public class CatPatch<H extends Cat> extends AnimalPatchBase<Cat> {
             currentOptionalLivingMotion = currentLivingMotion;
             return;
         }
+
         super.updateMotion(b);
     }
     @Override
@@ -110,6 +118,8 @@ public class CatPatch<H extends Cat> extends AnimalPatchBase<Cat> {
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.CAT_WALK);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.CAT_RUN);
         animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.CAT_SITTING);
+        animator.addLivingAnimation(MobsPlusLivingMotions.CAT_LAY, MobsPlusAnimations.CAT_LAYING);
+
         animator.addLivingAnimation(LivingMotions.DEATH, MobsPlusAnimations.CAT_DEATH);
 
     }
@@ -153,7 +163,7 @@ public class CatPatch<H extends Cat> extends AnimalPatchBase<Cat> {
     }
 
     @Override
-    public List<AnimationManager.AnimationAccessor<? extends IdleActionAnimation>> getIdleActionAnimations() {
+    public List<Pair<LivingMotion, AnimationManager.AnimationAccessor<? extends IdleActionAnimation>>> getIdleActionAnimations() {
         return List.of();
     }
     @Override

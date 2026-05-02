@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.api.abstract_classes;
 
+import net.kenji.epic_fight_mobs_plus.api.IdleActionManager;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
@@ -43,6 +44,12 @@ public abstract class AnimalPatchBase<T extends Animal> extends MobPatch<T> impl
         if (!this.getOriginal().level().isClientSide()) {
             MobsPlusPacketHandler.sendToAll(new ClientOptionalLivingMotionPacket(getOriginal().getId(), currentOptionalLivingMotion != null ? currentOptionalLivingMotion.universalOrdinal() : -1));
         }
+        if(this.blockIdleActionAnimation()){
+            IdleActionManager.IdleActionState state = IdleActionManager.getIdleActionState(this.getOriginal().getUUID());
+            if (state.animationPlaying) {
+                IdleActionManager.clearIdleActionState(this.quedIdleAction, this, state);
+            }
+        }
     }
 
     public float getAnimForwardSpeed(float minSpeed, float maxSpeed) {
@@ -64,5 +71,9 @@ public abstract class AnimalPatchBase<T extends Animal> extends MobPatch<T> impl
         Vec3 movement = this.getOriginal().getDeltaMovement();
         Vec3 forward = this.getEntityPatch().getOriginal().getForward();
         return movement.dot(forward);
+    }
+
+    public boolean blockIdleActionAnimation(){
+        return false;
     }
 }

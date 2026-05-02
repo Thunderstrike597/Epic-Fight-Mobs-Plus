@@ -70,11 +70,11 @@ public class ClientIdleActionSyncPacket {
                 }
 
                 patchInterface.getIdleActionAnimations().stream()
-                        .filter(accessor -> accessor.get().getLocation().equals(packet.motionId))
+                        .filter(pair -> pair.getSecond().get().getLocation().equals(packet.motionId))
                         .findFirst()
                         .ifPresent(accessor -> {
-                            patchInterface.queIdleAction(accessor);
-                            patch.getAnimator().playAnimation(accessor, accessor.get().getTransitionTime());
+                            patchInterface.queIdleAction(accessor.getSecond());
+                            patch.getAnimator().playAnimation(accessor.getSecond(), accessor.getSecond().get().getTransitionTime());
                         });
             }
         });
