@@ -172,7 +172,7 @@ dependencies {
 
     implementation fg.deobf("curse.maven:embeddium-908741:5681725")
 
-    implementation fg.deobf("curse.maven:oculus-581495:6020952")
+    //implementation fg.deobf("curse.maven:oculus-581495:6020952")
 
     //implementation fg.deobf("curse.maven:ydms-weapon-master-608235:5022313")
     //implementation fg.deobf("curse.maven:irons-spells-n-spellbooks-855414:7691158")
