@@ -18,6 +18,8 @@ public class FoxArmature extends Armature {
     public final Joint earLUpper;
     public final Joint eyeR;
     public final Joint eyeL;
+    public final Joint eyelidR;
+    public final Joint eyelidL;
     // Front legs
     public final Joint shoulderFR;
     public final Joint thighFR;
@@ -62,6 +64,8 @@ public class FoxArmature extends Armature {
 
         this.eyeR = getOrLogException(jointMap, "Eye_R");
         this.eyeL = getOrLogException(jointMap, "Eye_L");
+        this.eyelidR = getOrLogException(jointMap, "EyeLid_R");
+        this.eyelidL = getOrLogException(jointMap, "EyeLid_L");
 
         // Front Right
         this.shoulderFR = getOrLogException(jointMap, "Shoulder_FR");

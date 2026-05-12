@@ -9,24 +9,17 @@ import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.goals.ChasePassiveMobGoal;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.WolfAccessor;
-import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
-import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
-import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.TamableAnimal;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.animal.Wolf;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
@@ -115,9 +108,9 @@ public class WolfPatch<W extends TamableAnimal> extends AnimalPatchBase<Wolf> {
         super.initAnimator(animator);
 
         animator.addLivingAnimation(LivingMotions.IDLE, MobsPlusAnimations.WOLF_IDLE);
-        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR2, MobsPlusAnimations.WOLF_IDLE_VAR2);
-        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR3, MobsPlusAnimations.WOLF_IDLE_VAR3);
-        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR4, MobsPlusAnimations.WOLF_IDLE_VAR4);
+        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR2, MobsPlusAnimations.WOLF_IDLE_VAR1);
+        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR3, MobsPlusAnimations.WOLF_IDLE_VAR2);
+        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR4, MobsPlusAnimations.WOLF_IDLE_VAR3);
 
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.WOLF_WALK);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.WOLF_RUN);

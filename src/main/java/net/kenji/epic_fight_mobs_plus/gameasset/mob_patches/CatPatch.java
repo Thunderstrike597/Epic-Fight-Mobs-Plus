@@ -78,7 +78,7 @@ public class CatPatch<H extends Cat> extends AnimalPatchBase<Cat> {
 
     @Override
     public void updateMotion(boolean b) {
-        if (this.getOriginal().isInSittingPose() || this.getOriginal().isLying()) {
+        if (this.getOriginal().isLying()) {
             IdleActionManager.IdleActionState state = IdleActionManager.getIdleActionState(this.getOriginal().getUUID());
             if (state.animationPlaying) {
                 IdleActionManager.clearIdleActionState(this.quedIdleAction, this, state);
@@ -115,6 +115,9 @@ public class CatPatch<H extends Cat> extends AnimalPatchBase<Cat> {
     protected void initAnimator(Animator animator) {
         super.initAnimator(animator);
         animator.addLivingAnimation(LivingMotions.IDLE, MobsPlusAnimations.CAT_IDLE);
+        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR2, MobsPlusAnimations.CAT_IDLE_VAR1);
+        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR3, MobsPlusAnimations.CAT_IDLE_VAR2);
+        animator.addLivingAnimation(MobsPlusLivingMotions.IDLE_VAR4, MobsPlusAnimations.CAT_IDLE_VAR3);
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.CAT_WALK);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.CAT_RUN);
         animator.addLivingAnimation(LivingMotions.SIT, MobsPlusAnimations.CAT_SITTING);
@@ -164,7 +167,11 @@ public class CatPatch<H extends Cat> extends AnimalPatchBase<Cat> {
 
     @Override
     public List<Pair<LivingMotion, AnimationManager.AnimationAccessor<? extends IdleActionAnimation>>> getIdleActionAnimations() {
-        return List.of();
+        return List.of(
+                new Pair<>(LivingMotions.SIT, MobsPlusAnimations.CAT_SIT_ACTION_1),
+                new Pair<>(LivingMotions.SIT, MobsPlusAnimations.CAT_SIT_ACTION_2),
+                new Pair<>(LivingMotions.SIT, MobsPlusAnimations.CAT_SIT_ACTION_3)
+        );
     }
     @Override
     public void queIdleAction(AnimationManager.AnimationAccessor<? extends IdleActionAnimation> idleAction) {

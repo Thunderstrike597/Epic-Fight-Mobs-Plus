@@ -50,6 +50,11 @@ public class MobsPlusPacketHandler {
                 .encoder(ClientPlayAnimationPacket::encode)
                 .consumerMainThread(ClientPlayAnimationPacket::handle)
                 .add();
+        INSTANCE.messageBuilder(ClientQuedIdleActionSyncPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(ClientQuedIdleActionSyncPacket::decode)
+                .encoder(ClientQuedIdleActionSyncPacket::encode)
+                .consumerMainThread(ClientQuedIdleActionSyncPacket::handle)
+                .add();
     }
 
     // Helper method to send packet to server

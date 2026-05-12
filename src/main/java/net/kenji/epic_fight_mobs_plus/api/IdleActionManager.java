@@ -4,8 +4,11 @@ import com.mojang.datafixers.util.Pair;
 import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
+import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.CatPatch;
 import net.kenji.epic_fight_mobs_plus.network.ClientIdleActionSyncPacket;
+import net.kenji.epic_fight_mobs_plus.network.ClientQuedIdleActionSyncPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
+import net.kenji.epic_fight_mobs_plus.network.ServerIdleActionPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,13 +19,11 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jline.utils.Log;
-import yesman.epicfight.api.animation.AnimationManager;
-import yesman.epicfight.api.animation.AnimationPlayer;
-import yesman.epicfight.api.animation.LivingMotion;
-import yesman.epicfight.api.animation.LivingMotions;
+import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.api.client.animation.ClientAnimator;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
@@ -37,6 +38,8 @@ public class IdleActionManager {
         public int ticksUntilNextAction = -1; // -1 = needs initialization
         public boolean animationPlaying = false;
         public float initialRotation = -1;
+        public float currentElapsedTime = -1;
+        public float currentQuedTotalTime = -1;
         public Map<IdleActionAnimation, Integer> cooldowns = new HashMap<>(); // remaining cooldown per animation
     }
 
@@ -47,7 +50,6 @@ public class IdleActionManager {
 
     @SubscribeEvent
     public static void onLivingTick(LivingEvent.LivingTickEvent event) {
-        if (event.getEntity().level().isClientSide()) return;
         event.getEntity().getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent(cap -> {
             if (cap instanceof LivingEntityPatch<?> livingEntityPatch &&
                     livingEntityPatch instanceof IAnimalMobPatch patchInterface) {
@@ -55,33 +57,56 @@ public class IdleActionManager {
                 UUID id = patchInterface.getEntityPatch().getOriginal().getUUID();
                 IdleActionState state = getIdleActionState(id);
 
+                Animator animator = patchInterface.getEntityPatch().getAnimator();
+                if (animator instanceof ClientAnimator clientAnimator) {
+                    AnimationPlayer animPlayer = clientAnimator.getPlayerFor(null);
+                    if (animPlayer != null) {
+                        MobsPlusPacketHandler.sendToServer(new ServerIdleActionPacket(livingEntityPatch.getOriginal().getUUID(), null, animPlayer.getElapsedTime(), animPlayer.getAnimation().get().getTotalTime()));
+                    }
+
+                }
+
+                if (event.getEntity().level().isClientSide()) return;
+
+
                 // Only tick cooldowns when no animation is playing
                 if (!state.animationPlaying) {
                     tickCooldowns(state);
                 }
                 List<LivingMotion> motions = new ArrayList<>();
 
-                patchInterface.getIdleActionAnimations().forEach(pair ->{
-                    if(!motions.contains(pair.getFirst())){
+                patchInterface.getIdleActionAnimations().forEach(pair -> {
+                    if (!motions.contains(pair.getFirst())) {
                         motions.add(pair.getFirst());
                     }
                 });
 
-                    if (motions.contains(livingEntityPatch.getCurrentLivingMotion())) {
-                        if (!state.animationPlaying) {
+                if (motions.contains(livingEntityPatch.getCurrentLivingMotion())) {
+                    if (!state.animationPlaying) {
+                        if (patchInterface.getQuedIdleAction() == null)
                             handleIdleActionAssign(patchInterface, state);
-                        } else {
-                            handleAnimationPlay(patchInterface, state);
+                        else {
+                            if (animator instanceof ServerAnimator serverAnimator) {
+                                AnimationPlayer animPlayer = serverAnimator.animationPlayer;
+                                if (animPlayer != null) {
+                                    if (state.currentElapsedTime >= state.currentQuedTotalTime - 0.1F || patchInterface.getQuedIdleAction().get().isShouldPlayInstantly()) {
+                                        playQuedIdleAction(patchInterface, patchInterface.getQuedIdleAction().get());
+                                    }
+                                }
+                            }
                         }
-                    } else {
-                        if (state.animationPlaying) {
-                            AssetAccessor<? extends IdleActionAnimation> queued = patchInterface.getQuedIdleAction();
-                            clearIdleActionState(queued, patchInterface, state);
-                            // Send null to tell clients to clear
-                            MobsPlusPacketHandler.sendToAll(new ClientIdleActionSyncPacket(
-                                    livingEntityPatch.getOriginal().getId(), null));
-                        }
+                    }else {
+                        handleAnimationPlay(patchInterface, state);
                     }
+                } else {
+                    if (state.animationPlaying) {
+                        AssetAccessor<? extends IdleActionAnimation> queued = patchInterface.getQuedIdleAction();
+                        clearIdleActionState(queued, patchInterface, state);
+                        // Send null to tell clients to clear
+                        MobsPlusPacketHandler.sendToAll(new ClientIdleActionSyncPacket(
+                                livingEntityPatch.getOriginal().getId(), null));
+                    }
+                }
             }
         });
     }
@@ -139,8 +164,17 @@ public class IdleActionManager {
         List<IdleActionAnimation> candidates = idleAnims.stream()
                 .filter(a -> a.getPlayPriority() == maxPriority)
                 .toList();
+
+
         IdleActionAnimation chosen = weightedRandom(candidates, patchInterface.getEntityPatch().getOriginal().getRandom());
         patchInterface.queIdleAction(chosen.getAccessor());
+        MobsPlusPacketHandler.sendToAll(new ClientQuedIdleActionSyncPacket(patchInterface.getEntityPatch().getOriginal().getId(), chosen.getLocation()));
+    }
+
+    public static void playQuedIdleAction(IAnimalMobPatch patchInterface, IdleActionAnimation chosen){
+        UUID id = patchInterface.getEntityPatch().getOriginal().getUUID();
+        IdleActionState state = getIdleActionState(id);
+
         patchInterface.getEntityPatch().getServerAnimator().playAnimation(chosen.getAccessor(), chosen.getTransitionTime());
 
 // Sync to client
