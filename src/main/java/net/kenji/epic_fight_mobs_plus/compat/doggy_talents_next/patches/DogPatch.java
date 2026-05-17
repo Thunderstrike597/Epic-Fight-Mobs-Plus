@@ -12,7 +12,7 @@ import net.kenji.epic_fight_mobs_plus.mixins.accessors.DogAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.DogAiManagerAccessor;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
-import net.minecraftforge.event.entity.living.LivingEvent;
+
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -30,11 +30,10 @@ public class DogPatch<D extends Dog> extends AnimalPatchBase<Dog> {
     public static int MAX_COUNTER = 20;
     public int isFollowingOwnerCounter = 20;
 
-
-    @Override
-    public void tick(LivingEvent.LivingTickEvent event) {
-        super.tick(event);
+    public DogPatch(Dog entity) {
+        super(entity);
     }
+
 
     @Override
     public boolean computeShouldRun() {

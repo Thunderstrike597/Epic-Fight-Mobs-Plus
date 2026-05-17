@@ -16,7 +16,7 @@ import java.util.concurrent.Executor;
 
 public class MobsPlusColliderPreset implements PreparableReloadListener {
     private static final BiMap<ResourceLocation, Collider> PRESETS = HashBiMap.create();
-    public static final Collider POLAR_BEAR_COLLIDER = registerCollider(new ResourceLocation(EpicFightMobsPlus.MODID, "polar_bear_collider"), new MultiOBBCollider(5, 0.95, 0.95, 0.95, (double)0.0F, (double)0.0F, 0));
+    public static final Collider POLAR_BEAR_COLLIDER = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMobsPlus.MODID, "polar_bear_collider"), new MultiOBBCollider(5, 0.95, 0.95, 0.95, (double)0.0F, (double)0.0F, 0));
     public static Collider registerCollider(ResourceLocation rl, Collider collider) {
         if (PRESETS.containsKey(rl)) {
             throw new IllegalStateException("Collider named " + rl + " already registered.");

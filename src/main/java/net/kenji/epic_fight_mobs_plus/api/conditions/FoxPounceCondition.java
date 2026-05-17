@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.api.conditions;
 
+import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.FoxPatch;
 import net.kenji.epic_fight_mobs_plus.goals.AnimatedFoxPounceGoal;
 import net.minecraft.client.gui.screens.Screen;
@@ -30,11 +31,12 @@ public class FoxPounceCondition implements Condition<MobPatch<?>> {
     }
 
     public boolean isPounceGoalRunning(MobPatch<?> mobPatch) {
-        for (WrappedGoal goal : mobPatch.getOriginal().goalSelector.getRunningGoals().toList()) {
-            if (goal.getGoal() instanceof Fox.FoxPounceGoal || goal.getGoal() instanceof AnimatedFoxPounceGoal) {
-                return true;
+        if (mobPatch instanceof AnimalPatchBase<?> animalPatchBase)
+            for (WrappedGoal goal : animalPatchBase.getRunningGoals()) {
+                if (goal.getGoal() instanceof Fox.FoxPounceGoal || goal.getGoal() instanceof AnimatedFoxPounceGoal) {
+                    return true;
+                }
             }
-        }
         return false;
     }
 

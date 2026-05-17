@@ -15,7 +15,6 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.animal.Wolf;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -33,16 +32,16 @@ public class WolfPatch<W extends TamableAnimal> extends AnimalPatchBase<Wolf> {
     public static int MAX_COUNTER = 20;
     public int isFollowingOwnerCounter = 20;
 
-    @Override
-    public void tick(LivingEvent.LivingTickEvent event) {
-        super.tick(event);
+    public WolfPatch(Wolf entity) {
+        super(entity);
     }
+
 
     @Override
     public boolean computeShouldRun() {
         boolean followGoalActive = false;
 
-        for (WrappedGoal wrappedGoal : this.getOriginal().goalSelector.getRunningGoals().toList()) {
+        for (WrappedGoal wrappedGoal : this.getRunningGoals()) {
             if (wrappedGoal.getGoal() instanceof FollowOwnerGoal) {
                 followGoalActive = true;
                 isFollowingOwnerCounter = MAX_COUNTER;

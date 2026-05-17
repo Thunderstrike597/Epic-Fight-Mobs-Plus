@@ -1,31 +1,35 @@
 package net.kenji.epic_fight_mobs_plus.network;
 
+import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 import java.util.function.Supplier;
 
-public class ClientOptionalLivingMotionPacket {
-    private final int entityId;
-    private final int motionId;
+public record ClientOptionalLivingMotionPacket(int entityId, int motionId) implements CustomPacketPayload{
 
+    public static final CustomPacketPayload.Type<ClientOptionalLivingMotionPacket> TYPE =
+            new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(EpicFightMobsPlus.MODID, "client_optional_living_motions_packet"));
+    public static final StreamCodec<FriendlyByteBuf, ClientOptionalLivingMotionPacket> STREAM_CODEC =
+            StreamCodec.of(ClientOptionalLivingMotionPacket::encode, ClientOptionalLivingMotionPacket::decode);
 
-    public ClientOptionalLivingMotionPacket(int entityId, int motionId) {
-        this.entityId = entityId;
-        this.motionId = motionId;
-    }
 
     // Encode: Write data to buffer
-    public static void encode(ClientOptionalLivingMotionPacket packet, FriendlyByteBuf buf) {
+    public static void encode(FriendlyByteBuf buf, ClientOptionalLivingMotionPacket packet) {
         buf.writeInt(packet.entityId);
         buf.writeInt(packet.motionId);
 
@@ -39,29 +43,34 @@ public class ClientOptionalLivingMotionPacket {
     }
 
     // Handle: Process the packet on the receiving side
-    public static void handle(ClientOptionalLivingMotionPacket packet, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            if(ctx.get().getDirection().getReceptionSide().isClient()) {
+    public static void handle(ClientOptionalLivingMotionPacket packet, IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
+            if (FMLEnvironment.dist == Dist.CLIENT) {
                 executeOnClient(packet);
             }
         });
-        ctx.get().setPacketHandled(true);
     }
+
     @OnlyIn(Dist.CLIENT)
-    private static void executeOnClient(ClientOptionalLivingMotionPacket packet){
+    private static void executeOnClient(ClientOptionalLivingMotionPacket packet) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-        if(playerPatch == null) return;
+        if (playerPatch == null) return;
         Entity entity = player.level().getEntity(packet.entityId);
-        if(entity == null) return;
-        entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent((cap) -> {
-            if(cap instanceof IAnimalMobPatch patchInterface){
-                LivingEntityPatch<?> patch = patchInterface.getEntityPatch();
-                if(patch != null) {
-                    patchInterface.setOptionalLivingMotion(packet.motionId);
-                }
+        if (entity == null) return;
+        EntityPatch<?> entityPatch = EpicFightCapabilities.ENTITY_PATCH_PROVIDER.getCapability(entity);
+        if (entityPatch == null) return;
+        if (entityPatch instanceof IAnimalMobPatch patchInterface) {
+            LivingEntityPatch<?> patch = patchInterface.getEntityPatch();
+            if (patch != null) {
+                patchInterface.setOptionalLivingMotion(packet.motionId);
             }
-        });
+        }
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

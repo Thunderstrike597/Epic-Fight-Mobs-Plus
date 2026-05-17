@@ -16,7 +16,6 @@ import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.animal.Fox;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -24,7 +23,6 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
@@ -33,9 +31,13 @@ import java.util.List;
 
 public class FoxPatch<H extends Fox> extends AnimalPatchBase<Fox> {
 
+    public FoxPatch(Fox entity) {
+        super(entity);
+    }
+
     @Override
-    public void tick(LivingEvent.LivingTickEvent event) {
-        super.tick(event);
+    public void postTick() {
+        super.postTick();
     }
 
     public static int MAX_COUNTER = 20;
@@ -44,7 +46,7 @@ public class FoxPatch<H extends Fox> extends AnimalPatchBase<Fox> {
     public boolean computeShouldRun() {
         boolean followGoalActive = false;
 
-        for (WrappedGoal wrappedGoal : this.getOriginal().goalSelector.getRunningGoals().toList()) {
+        for (WrappedGoal wrappedGoal : this.getRunningGoals()) {
             if (wrappedGoal.getGoal() instanceof FollowOwnerGoal || wrappedGoal.getGoal() instanceof AvoidEntityGoal<?>) {
                 followGoalActive = true;
                 isFollowingOwnerCounter = MAX_COUNTER;
@@ -64,7 +66,7 @@ public class FoxPatch<H extends Fox> extends AnimalPatchBase<Fox> {
         return shouldRun ||  this.getOriginal().getPersistentData().getBoolean("is_following");
     }
     public boolean isPounceGoalRunning() {
-        for (WrappedGoal goal : this.getOriginal().goalSelector.getRunningGoals().toList()) {
+        for (WrappedGoal goal : getRunningGoals()) {
             if (goal.getGoal() instanceof Fox.FoxPounceGoal || goal.getGoal() instanceof AnimatedFoxPounceGoal) {
 
                 return true;

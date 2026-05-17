@@ -7,18 +7,25 @@ import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
 import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AnimalPatchBase<T extends Animal> extends MobPatch<T> implements IAnimalMobPatch {
     protected LivingMotion currentOptionalLivingMotion;
     public boolean shouldRun = false;
 
     public AnimationManager.AnimationAccessor<? extends IdleActionAnimation> quedIdleAction = null;
+
+    public AnimalPatchBase(T entity) {
+        super(entity);
+    }
 
     public boolean computeShouldRun() {
         return false;
@@ -30,14 +37,24 @@ public abstract class AnimalPatchBase<T extends Animal> extends MobPatch<T> impl
         super.commonMobUpdateMotion(b);
     }
 
+    public List<WrappedGoal> getRunningGoals(){
+        List<WrappedGoal> finalWrappedGoals = new ArrayList<>();
+        for(WrappedGoal wrappedGoal : this.getOriginal().goalSelector.getAvailableGoals()){
+            if(wrappedGoal.isRunning()){
+                finalWrappedGoals.add(wrappedGoal);
+            }
+        }
+        return finalWrappedGoals;
+    }
+
     @Override
-    public void tick(LivingEvent.LivingTickEvent event) {
+    public void preTick() {
         if (!this.getOriginal().level().isClientSide()) {
             shouldRun = computeShouldRun();
             MobsPlusPacketHandler.sendToAll(new ClientPetRunPacket(getOriginal().getId(), shouldRun));
         }
 
-        super.tick(event);
+        super.preTick();
 
 
         updateMotion(false);
@@ -53,7 +70,7 @@ public abstract class AnimalPatchBase<T extends Animal> extends MobPatch<T> impl
     }
     @Override
     public void setShouldRun(boolean value) {
-        shouldRun = true;
+        shouldRun = value;
     }
     public float getAnimForwardSpeed(float minSpeed, float maxSpeed) {
 

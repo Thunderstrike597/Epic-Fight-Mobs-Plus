@@ -11,7 +11,6 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.animal.PolarBear;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.animal.horse.Horse;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import org.jline.utils.Log;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Animator;
@@ -30,6 +29,10 @@ import java.util.List;
 public class PolarBearPatch<H extends PolarBear> extends AnimalPatchBase<PolarBear> {
 
 
+    public PolarBearPatch(PolarBear entity) {
+        super(entity);
+    }
+
     @Override
     public void updateMotion(boolean b) {
         super.commonMobUpdateMotion(b);
@@ -39,10 +42,7 @@ public class PolarBearPatch<H extends PolarBear> extends AnimalPatchBase<PolarBe
     public float storedJumpSpeed = -1;
     public boolean cachedShouldRun = false;
 
-    @Override
-    public void tick(LivingEvent.LivingTickEvent event) {
-        super.tick(event);
-    }
+
 
     @Override
     public AssetAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {

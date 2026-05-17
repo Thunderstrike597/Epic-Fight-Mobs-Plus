@@ -19,7 +19,7 @@ import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class PatchedWolfCollarLayer<AM extends SkinnedMesh> extends ModelRenderLayer<Wolf, WolfPatch<Wolf>, WolfModel<Wolf>, WolfCollarLayer, AM> {
-    private static final ResourceLocation WOLF_COLLAR_LOCATION = new ResourceLocation("textures/entity/wolf/wolf_collar.png");
+    private static final ResourceLocation WOLF_COLLAR_LOCATION = ResourceLocation.withDefaultNamespace("textures/entity/wolf/wolf_collar.png");
 
     public PatchedWolfCollarLayer(AssetAccessor<AM> mesh) {
         super(mesh);
@@ -29,13 +29,16 @@ public class PatchedWolfCollarLayer<AM extends SkinnedMesh> extends ModelRenderL
     protected void renderLayer(WolfPatch<Wolf> entitypatch, Wolf entityliving, WolfCollarLayer vanillaLayer, PoseStack poseStack, MultiBufferSource buffer, int packedLightIn, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
         if (!entityliving.isTame() || entityliving.isInvisible()) return;
 
-        float[] rgb = entityliving.getCollarColor().getTextureDiffuseColors();
+        int color = entityliving.getCollarColor().getTextureDiffuseColor();
+        float r = ((color >> 16) & 0xFF) / 255.0F;
+        float g = ((color >> 8)  & 0xFF) / 255.0F;
+        float b = ( color        & 0xFF) / 255.0F;
 
         ((SkinnedMesh) this.mesh.get()).draw(
                 poseStack, buffer,
                 RenderType.entityCutoutNoCull(WOLF_COLLAR_LOCATION),
                 packedLightIn,
-                rgb[0], rgb[1], rgb[2], 1.0F,
+                r, g, b, 1.0F,
                 OverlayTexture.NO_OVERLAY,
                 entitypatch.getArmature(), poses
         );

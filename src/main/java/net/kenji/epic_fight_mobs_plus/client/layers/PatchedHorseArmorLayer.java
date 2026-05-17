@@ -8,9 +8,10 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.HorseArmorLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.animal.horse.Horse;
-import net.minecraft.world.item.DyeableHorseArmorItem;
-import net.minecraft.world.item.HorseArmorItem;
+
+import net.minecraft.world.item.AnimalArmorItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -24,18 +25,21 @@ public class PatchedHorseArmorLayer<AM extends SkinnedMesh> extends ModelRenderL
 
     @Override
     protected void renderLayer(HorsePatch<Horse> entitypatch, Horse entityliving, HorseArmorLayer vanillaLayer, PoseStack poseStack, MultiBufferSource buffer, int packedLightIn, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
-        ItemStack armorStack = entityliving.getArmor();
-        if (!(armorStack.getItem() instanceof HorseArmorItem horsearmoritem)) return;
-        if(entityliving.isInvisible()) return;
+        ItemStack armorStack = entityliving.getBodyArmorItem();
+        if (!(armorStack.getItem() instanceof AnimalArmorItem horsearmoritem)) return;
+        if (entityliving.isInvisible()) return;
         float r, g, b;
-        if (horsearmoritem instanceof DyeableHorseArmorItem dyeable) {
+
+        ///---------------// Can't Find new Relevant Dyeable Armor Class
+        /*if (horsearmoritem instanceof ) {
             int color = dyeable.getColor(armorStack);
             r = (float)(color >> 16 & 255) / 255.0F;
             g = (float)(color >> 8  & 255) / 255.0F;
             b = (float)(color       & 255) / 255.0F;
-        } else {
-            r = g = b = 1.0F;
-        }
+        }*/
+        //else{
+        r = g = b = 1.0F;
+        // }
 
         ((SkinnedMesh) this.mesh.get()).draw(
                 poseStack, buffer,

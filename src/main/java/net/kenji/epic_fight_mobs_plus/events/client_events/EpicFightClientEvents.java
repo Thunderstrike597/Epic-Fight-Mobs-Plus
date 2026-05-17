@@ -4,16 +4,19 @@ import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
 import net.kenji.epic_fight_mobs_plus.api.MobPatchFactory;
 import net.kenji.epic_fight_mobs_plus.client.patched_renderers.WolfPatchRenderer;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import org.jline.utils.Log;
-import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
 
-@Mod.EventBusSubscriber(modid = EpicFightMobsPlus.MODID, value = Dist.CLIENT)
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import org.jline.utils.Log;
+import yesman.epicfight.EpicFightClient;
+import yesman.epicfight.api.client.event.types.registry.RegisterPatchedRenderersEvent;
+
 public class EpicFightClientEvents {
-    @SubscribeEvent
-    public static void registerPatchedEntityRenderers(PatchedRenderersEvent.Add event) {
+
+
+    public static void registerPatchedEntityRenderers(RegisterPatchedRenderersEvent.AddEntity event) {
         for (MobPatchFactory.MobPatchDefinitions def : MobPatchFactory.mobPatches) {
             event.addPatchedEntityRenderer(
                     def.entityType,

@@ -8,6 +8,14 @@ pluginManagement {
         maven {
             url = 'https://maven.parchmentmc.org'
         }
+
+        maven {
+            url = 'https://maven.neoforged.net/releases'
+        }
+
+        gradlePluginPortal()
+        mavenLocal()
+        
     }
 }
 
@@ -15,4 +23,4 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.7.0'
 }
 
-rootProject.name = 'epic-fight-mobs-plus'
+rootProject.name = 'epic-fight-mobs-plus-1_21_1'

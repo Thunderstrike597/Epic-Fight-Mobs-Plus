@@ -16,8 +16,6 @@ import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
 
 public class PWolfRenderer extends PatchedLivingEntityRenderer<Wolf, WolfPatch<Wolf>, WolfModel<Wolf>, WolfRenderer, MobsPlusMesh> {
-    private static final ResourceLocation WOLF_LOCATION = new ResourceLocation("textures/entity/wolf/wolf.png");
-    private static final ResourceLocation WOLF_TAME_LOCATION = new ResourceLocation("textures/entity/wolf/wolf_tame.png");
 
     public PWolfRenderer(Meshes.MeshAccessor<MobsPlusMesh> wolf, EntityRendererProvider.Context context, EntityType<?> entityType) {
         super(context, entityType);

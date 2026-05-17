@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(Fox.class)
+@Mixin(value = Fox.class, remap = false)
 public class FoxMixin {
     @Redirect(
             method = "registerGoals",

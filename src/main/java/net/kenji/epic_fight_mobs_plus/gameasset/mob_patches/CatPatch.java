@@ -20,8 +20,8 @@ import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraft.world.entity.animal.Turtle;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.LivingEvent;
+
+import org.jline.utils.Log;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -39,20 +39,21 @@ import java.util.function.Predicate;
 public class CatPatch<H extends Cat> extends AnimalPatchBase<Cat> {
 
 
-    @Override
-    public void tick(LivingEvent.LivingTickEvent event) {
-        super.tick(event);
-    }
 
     public boolean isFollowingOwner = false;
     public static int MAX_COUNTER = 20;
     public int isFollowingOwnerCounter = 20;
+
+    public CatPatch(Cat entity) {
+        super(entity);
+    }
+
     @Override
     public boolean computeShouldRun() {
         boolean followGoalActive = false;
 
-        for (WrappedGoal wrappedGoal : this.getOriginal().goalSelector.getRunningGoals().toList()) {
-            if (wrappedGoal.getGoal() instanceof FollowOwnerGoal || wrappedGoal.getGoal() instanceof AvoidEntityGoal<?>) {
+        for (WrappedGoal wrappedGoal : this.getRunningGoals()) {
+            if (wrappedGoal.getGoal() instanceof FollowOwnerGoal || wrappedGoal.getGoal() instanceof AvoidEntityGoal) {
                 followGoalActive = true;
                 isFollowingOwnerCounter = MAX_COUNTER;
                 this.getOriginal().getPersistentData().putBoolean("is_running", true);
@@ -143,6 +144,7 @@ public class CatPatch<H extends Cat> extends AnimalPatchBase<Cat> {
     public boolean shouldRunWithAnim() {
         return shouldRun() && (getCurrentForwardSpeed() > this.getWalkSpeed());
     }
+
     @Override
     public boolean shouldRun() {
        if(!this.getOriginal().isSteppingCarefully()) {
@@ -154,10 +156,6 @@ public class CatPatch<H extends Cat> extends AnimalPatchBase<Cat> {
     @Override
     public float getWalkSpeed() {
         return ((LivingEntityAccessor)this.getOriginal()).getSpeedAccessor() / 2;
-    }
-    @Override
-    public void setShouldRun(boolean value) {
-        shouldRun = value;
     }
 
     @Override

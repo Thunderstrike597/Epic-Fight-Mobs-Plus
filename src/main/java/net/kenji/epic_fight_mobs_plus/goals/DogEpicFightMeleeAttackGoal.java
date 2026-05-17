@@ -4,6 +4,7 @@ import doggytalents.api.inferface.InferTypeContext;
 import doggytalents.common.entity.Dog;
 import doggytalents.common.entity.DogAttackManager;
 import doggytalents.common.entity.ai.DogAiManager;
+import doggytalents.common.entity.ai.DogMeleeAttackGoal;
 import doggytalents.common.entity.ai.nav.DogFlyingNavigation;
 import doggytalents.common.util.DogUtil;
 import net.minecraft.core.BlockPos;
@@ -14,8 +15,8 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -69,9 +70,9 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
             if (target == null) {
                 return false;
             } else if (!target.isAlive()) {
-                this.dog.setTarget((LivingEntity)null);
+                this.dog.setTarget((LivingEntity) null);
                 return false;
-            } else if (target.getY() >= (double)this.dog.level().getMaxBuildHeight()) {
+            } else if (target.getY() >= (double) this.dog.level().getMaxBuildHeight()) {
                 return false;
             } else if (this.dog.getDogRangedAttack().isApplicable(this.dog)) {
                 return false;
@@ -82,7 +83,7 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
             } else {
                 double d0 = this.dog.distanceToSqr(target);
                 this.detectReachPenalty = 5;
-                this.detectReachPenalty += d0 > (double)256.0F ? 10 : 5;
+                this.detectReachPenalty += d0 > (double) 256.0F ? 10 : 5;
                 DogAttackManager attack_manager = this.dog.dogAttackManager;
                 if (attack_manager.hasTaticalTarget()) {
                     this.detectReachPenalty = 25;
@@ -95,7 +96,7 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
                     if (p == null) {
                         return false;
                     } else if (!DogUtil.canPathReachTargetBlock(this.dog, p, target.blockPosition(), 1, this.dog.getMaxFallDistance())) {
-                        this.dog.setTarget((LivingEntity)null);
+                        this.dog.setTarget((LivingEntity) null);
                         return false;
                     } else {
                         this.initialPath = p;
@@ -139,12 +140,12 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
                     return false;
                 } else if (!livingentity.isAlive()) {
                     return false;
-                } else if (livingentity.getY() >= (double)this.dog.level().getMaxBuildHeight()) {
+                } else if (livingentity.getY() >= (double) this.dog.level().getMaxBuildHeight()) {
                     return false;
                 } else if (restriction && !this.dog.isWithinRestriction(livingentity.blockPosition())) {
                     return false;
                 } else {
-                    return !(livingentity instanceof Player) || !livingentity.isSpectator() && !((Player)livingentity).isCreative();
+                    return !(livingentity instanceof Player) || !livingentity.isSpectator() && !((Player) livingentity).isCreative();
                 }
             }
         }
@@ -170,7 +171,7 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
 
     public void stop() {
         this.initialPath = null;
-        this.dog.setTarget((LivingEntity)null);
+        this.dog.setTarget((LivingEntity) null);
         this.dog.getNavigation().stop();
         DogAttackManager attack_manager = this.dog.dogAttackManager;
         attack_manager.attacking = false;
@@ -190,7 +191,7 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
             DogAttackManager attack_manager = this.dog.dogAttackManager;
             if (attack_manager.isDogFarChasingTarget()) {
                 double d0 = this.dog.distanceToSqr(e.getX(), e.getY(), e.getZ());
-                double min_dist = (double)(attack_manager.getStandardFollowRange() / 2 + 1);
+                double min_dist = (double) (attack_manager.getStandardFollowRange() / 2 + 1);
                 if (d0 < min_dist * min_dist) {
                     attack_manager.setDogFarChasingTarget(false);
                 }
@@ -218,7 +219,7 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
 
                 --this.ticksUntilPathRecalc;
                 --this.ticksUntilNextAttack;
-                if (n.isDone() && dog_bp.distSqr(target_bp) <= (double)2.25F && !this.canReachTarget(e, d0) && this.isTargetInSafeArea(this.dog, e, target_bp)) {
+                if (n.isDone() && dog_bp.distSqr(target_bp) <= (double) 2.25F && !this.canReachTarget(e, d0) && this.isTargetInSafeArea(this.dog, e, target_bp)) {
                     this.dog.getMoveControl().setWantedPosition(e.getX(), e.getY(), e.getZ(), this.speedModifier);
                 }
 
@@ -226,6 +227,9 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
                     this.ticksUntilPathRecalc = 0;
                 }
 
+                if (this.checkAndPerformAttack(e, d0)) {
+                    this.waitingTick = 0;
+                }
 
                 this.checkAndLeapAtTarget(e);
             }
@@ -235,7 +239,7 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
     protected void checkAndLeapAtTarget(LivingEntity target) {
         if (this.canLeapAtTarget(target)) {
             Vec3 vec3 = this.dog.getDeltaMovement();
-            Vec3 vec31 = new Vec3(target.getX() - this.dog.getX(), (double)0.0F, target.getZ() - this.dog.getZ());
+            Vec3 vec31 = new Vec3(target.getX() - this.dog.getX(), (double) 0.0F, target.getZ() - this.dog.getZ());
             if (vec31.lengthSqr() > 1.0E-7) {
                 vec31 = vec31.normalize().scale(0.4);
             }
@@ -243,25 +247,25 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
             Dog var10000 = this.dog;
             double var10001 = vec31.x;
             Objects.requireNonNull(this);
-            var10000.setDeltaMovement(var10001, (double)0.4F, vec31.z);
+            var10000.setDeltaMovement(var10001, (double) 0.4F, vec31.z);
         }
     }
 
     private boolean flyingDogDashToTargetIfNeeded(LivingEntity target) {
         double d_sqr = this.dog.distanceToSqr(target);
-        if (d_sqr > (double)16.0F) {
+        if (d_sqr > (double) 16.0F) {
             return false;
         } else if (this.dog.tickCount % 5 != 0) {
             return false;
         } else {
             PathNavigation var5 = this.dog.getNavigation();
             if (var5 instanceof DogFlyingNavigation) {
-                DogFlyingNavigation flyNav = (DogFlyingNavigation)var5;
+                DogFlyingNavigation flyNav = (DogFlyingNavigation) var5;
                 if (!flyNav.canDashToTarget(target)) {
                     return false;
                 } else {
                     flyNav.stop();
-                    this.dog.getMoveControl().setWantedPosition(target.position().x, target.position().y, target.position().z, (double)2.0F);
+                    this.dog.getMoveControl().setWantedPosition(target.position().x, target.position().y, target.position().z, (double) 2.0F);
                     this.ticksUntilPathRecalc = 10;
                     return true;
                 }
@@ -280,20 +284,20 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
             return false;
         } else {
             double d0 = this.dog.distanceToSqr(target);
-            if (d0 >= (double)1.0F && d0 <= (double)2.0F) {
+            if (d0 >= (double) 1.0F && d0 <= (double) 2.0F) {
                 if (this.dog.getRandom().nextInt(3) != 0) {
                     return false;
                 } else {
                     BlockPos tpos = target.blockPosition();
-                    if (WalkNodeEvaluator.getBlockPathTypeStatic(this.dog.level(), tpos.mutable()) != BlockPathTypes.WALKABLE) {
+                    if (WalkNodeEvaluator.getPathTypeStatic(this.dog, tpos.mutable()) != PathType.WALKABLE) {
                         return false;
                     } else {
-                        Vec3 v_offset = (new Vec3(target.getX() - this.dog.getX(), (double)0.0F, target.getZ() - this.dog.getZ())).normalize();
+                        Vec3 v_offset = (new Vec3(target.getX() - this.dog.getX(), (double) 0.0F, target.getZ() - this.dog.getZ())).normalize();
                         Vec3 v_dog = this.dog.position();
 
-                        for(int i = 1; i <= 3; ++i) {
+                        for (int i = 1; i <= 3; ++i) {
                             v_dog = v_dog.add(v_offset);
-                            if (WalkNodeEvaluator.getBlockPathTypeStatic(this.dog.level(), BlockPos.containing(v_dog).mutable()) != BlockPathTypes.WALKABLE) {
+                            if (WalkNodeEvaluator.getPathTypeStatic(this.dog, BlockPos.containing(v_dog).mutable()) != PathType.WALKABLE) {
                                 return false;
                             }
                         }
@@ -316,17 +320,25 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
             return path == null || path.getNodeCount() <= 5;
         }
     }
-    @Override
-    protected void checkAndPerformAttack(LivingEntity target, double distanceToTargetSqr) {
+
+    protected boolean checkAndPerformAttack(LivingEntity target, double distanceToTargetSqr) {
+        if (this.canReachTarget(target, distanceToTargetSqr) && this.ticksUntilNextAttack <= 0) {
+            this.resetAttackCooldown();
+            this.dog.swing(InteractionHand.MAIN_HAND);
+            this.dog.doHurtTarget(target);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     protected boolean isTargetInSafeArea(Dog dog, LivingEntity target, BlockPos target_bp) {
-        BlockPathTypes type = WalkNodeEvaluator.getBlockPathTypeStatic(dog.level(), target_bp.mutable());
-        if (type == BlockPathTypes.OPEN) {
+        PathType type = WalkNodeEvaluator.getPathTypeStatic(dog, target_bp.mutable());
+        if (type == PathType.OPEN) {
             return false;
         } else {
             type = dog.inferType(type, InferTypeContext.getDefault());
-            return type.getDanger() == null;
+            return !DogUtil.isDangerPathType(type);
         }
     }
 
@@ -347,18 +359,18 @@ public class DogEpicFightMeleeAttackGoal extends TargetChasingGoal implements Do
     }
 
     protected double getAttackReachSqr(LivingEntity target) {
-        return (double)(this.dog.getBbWidth() * 2.0F * this.dog.getBbWidth() * 2.0F + target.getBbWidth());
+        return (double) (this.dog.getBbWidth() * 2.0F * this.dog.getBbWidth() * 2.0F + target.getBbWidth());
     }
 
     protected double getMaxDistanceAwayFromOwner() {
-        double ret = (double)400.0F;
+        double ret = (double) 400.0F;
         if (this.dog.getCombatReturnStrategy() == Dog.CombatReturnStrategy.FAR) {
-            ret = (double)1024.0F;
+            ret = (double) 1024.0F;
         }
 
         boolean has_tatical = this.dog.dogAttackManager.hasTaticalTarget();
         if (has_tatical) {
-            ret += (double)10.0F;
+            ret += (double) 10.0F;
         }
 
         return ret;

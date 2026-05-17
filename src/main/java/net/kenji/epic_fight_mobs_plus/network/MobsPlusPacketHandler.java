@@ -1,74 +1,65 @@
 package net.kenji.epic_fight_mobs_plus.network;
 
 import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
+@EventBusSubscriber(modid = EpicFightMobsPlus.MODID)
 public class MobsPlusPacketHandler {
+
     private static final String PROTOCOL_VERSION = "1";
 
-    public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation(EpicFightMobsPlus.MODID, "main"),
-            () -> PROTOCOL_VERSION,
-            PROTOCOL_VERSION::equals,
-            PROTOCOL_VERSION::equals
-    );
+    @SubscribeEvent
+    public static void register(final RegisterPayloadHandlersEvent event) {
+        final PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
 
-    private static int packetId = 0;
-
-    private static int id() {
-        return packetId++;
+        registrar.playToServer(
+                ServerIdleActionPacket.TYPE,
+                ServerIdleActionPacket.STREAM_CODEC,
+                ServerIdleActionPacket::handle
+        );
+        registrar.playToClient(
+                ClientPetRunPacket.TYPE,
+                ClientPetRunPacket.STREAM_CODEC,
+                ClientPetRunPacket::handle
+        );
+        registrar.playToClient(
+                ClientOptionalLivingMotionPacket.TYPE,
+                ClientOptionalLivingMotionPacket.STREAM_CODEC,
+                ClientOptionalLivingMotionPacket::handle
+        );
+        registrar.playToClient(
+                ClientIdleActionSyncPacket.TYPE,
+                ClientIdleActionSyncPacket.STREAM_CODEC,
+                ClientIdleActionSyncPacket::handle
+        );
+        registrar.playToClient(
+                ClientPlayAnimationPacket.TYPE,
+                ClientPlayAnimationPacket.STREAM_CODEC,
+                ClientPlayAnimationPacket::handle
+        );
+        registrar.playToClient(
+                ClientQuedIdleActionSyncPacket.TYPE,
+                ClientQuedIdleActionSyncPacket.STREAM_CODEC,
+                ClientQuedIdleActionSyncPacket::handle
+        );
     }
 
-    public static void register() {
-        INSTANCE.messageBuilder(ServerIdleActionPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(ServerIdleActionPacket::decode)
-                .encoder(ServerIdleActionPacket::encode)
-                .consumerMainThread(ServerIdleActionPacket::handle)
-                .add();
-        INSTANCE.messageBuilder(ClientPetRunPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(ClientPetRunPacket::decode)
-                .encoder(ClientPetRunPacket::encode)
-                .consumerMainThread(ClientPetRunPacket::handle)
-                .add();
-        INSTANCE.messageBuilder(ClientOptionalLivingMotionPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(ClientOptionalLivingMotionPacket::decode)
-                .encoder(ClientOptionalLivingMotionPacket::encode)
-                .consumerMainThread(ClientOptionalLivingMotionPacket::handle)
-                .add();
-        INSTANCE.messageBuilder(ClientIdleActionSyncPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(ClientIdleActionSyncPacket::decode)
-                .encoder(ClientIdleActionSyncPacket::encode)
-                .consumerMainThread(ClientIdleActionSyncPacket::handle)
-                .add();
-        INSTANCE.messageBuilder(ClientPlayAnimationPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(ClientPlayAnimationPacket::decode)
-                .encoder(ClientPlayAnimationPacket::encode)
-                .consumerMainThread(ClientPlayAnimationPacket::handle)
-                .add();
-        INSTANCE.messageBuilder(ClientQuedIdleActionSyncPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(ClientQuedIdleActionSyncPacket::decode)
-                .encoder(ClientQuedIdleActionSyncPacket::encode)
-                .consumerMainThread(ClientQuedIdleActionSyncPacket::handle)
-                .add();
+    public static void sendToServer(CustomPacketPayload payload) {
+        PacketDistributor.sendToServer(payload);
     }
 
-    // Helper method to send packet to server
-    public static void sendToServer(Object packet) {
-        INSTANCE.sendToServer(packet);
+    public static void sendToPlayer(CustomPacketPayload payload, net.minecraft.server.level.ServerPlayer player) {
+        PacketDistributor.sendToPlayer(player, payload);
     }
 
-    // Helper method to send packet to specific player
-    public static void sendToPlayer(Object packet, ServerPlayer player) {
-        INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), packet);
-    }
-
-    // Helper method to send packet to all players
-    public static void sendToAll(Object packet) {
-        INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
+    public static void sendToAll(CustomPacketPayload payload) {
+        PacketDistributor.sendToAllPlayers(payload);
     }
 }

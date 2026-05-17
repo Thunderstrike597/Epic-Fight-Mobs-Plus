@@ -3,15 +3,16 @@ package net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.events;
 import doggytalents.DoggyEntityTypes;
 import net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.patches.DogPatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusArmatures;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import yesman.epicfight.api.forgeevent.EntityPatchRegistryEvent;
+
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import yesman.epicfight.api.event.types.registry.EntityPatchRegistryEvent;
 import yesman.epicfight.gameasset.Armatures;
 
 public class DoggyTalentsEvents {
 
 
     public static void registerPatchedEntities(EntityPatchRegistryEvent event) {
-       event.getTypeEntry().put(DoggyEntityTypes.DOG.get(), entity -> DogPatch::new);
+       event.registerEntityPatch(DoggyEntityTypes.DOG.get(), DogPatch::new);
     }
 
     public static void commonSetup(FMLCommonSetupEvent event) {

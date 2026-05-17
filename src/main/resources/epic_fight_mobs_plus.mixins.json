@@ -19,7 +19,7 @@
     "animal_mixins.DogAiManagerMixin",
     "animal_mixins.FoxMixin",
     "AbstractClientPlayerPatchMixin",
-    "EntityMixin",
+    "AbstractHorseMixin",
     "LivingEntityMixin",
     "MobMixin",
     "MobPatchMixin",

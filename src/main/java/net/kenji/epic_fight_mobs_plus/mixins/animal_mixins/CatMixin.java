@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(Cat.class)
+@Mixin(value = Cat.class, remap = false)
 public class CatMixin {
     @Redirect(
             method = "registerGoals",

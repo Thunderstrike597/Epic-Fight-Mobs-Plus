@@ -18,7 +18,7 @@ import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
 
 public class PatchedHorseSaddleLayer<AM extends SkinnedMesh> extends ModelRenderLayer<Horse, HorsePatch<Horse>, HorseModel<Horse>, HorseArmorLayer, AM> {
     private static final ResourceLocation SADDLE_TEXTURE =
-            new ResourceLocation(EpicFightMobsPlus.MODID, "textures/entity/horse/horse_saddle.png");
+            ResourceLocation.fromNamespaceAndPath(EpicFightMobsPlus.MODID, "textures/entity/horse/horse_saddle.png");
 
     public PatchedHorseSaddleLayer(AssetAccessor<AM> mesh) {
         super(mesh);

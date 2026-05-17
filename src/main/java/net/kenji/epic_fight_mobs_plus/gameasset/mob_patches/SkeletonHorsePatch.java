@@ -3,32 +3,26 @@ package net.kenji.epic_fight_mobs_plus.gameasset.mob_patches;
 import com.mojang.datafixers.util.Pair;
 import net.kenji.epic_fight_mobs_plus.api.abstract_classes.AnimalPatchBase;
 import net.kenji.epic_fight_mobs_plus.api.animation_types.IdleActionAnimation;
-import net.kenji.epic_fight_mobs_plus.api.interfaces.IAnimalMobPatch;
 import net.kenji.epic_fight_mobs_plus.api.interfaces.IHorsePatch;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.LivingEntityAccessor;
-import net.kenji.epic_fight_mobs_plus.network.ClientOptionalLivingMotionPacket;
-import net.kenji.epic_fight_mobs_plus.network.ClientPetRunPacket;
-import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.animal.horse.SkeletonHorse;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.List;
 
 public class SkeletonHorsePatch<H extends AbstractHorse> extends AnimalPatchBase<SkeletonHorse> implements IHorsePatch {
 
+
+    public SkeletonHorsePatch(SkeletonHorse entity) {
+        super(entity);
+    }
 
     @Override
     public void updateMotion(boolean b) {
@@ -40,8 +34,8 @@ public class SkeletonHorsePatch<H extends AbstractHorse> extends AnimalPatchBase
     public boolean cachedShouldRun = false;
 
     @Override
-    public void tick(LivingEvent.LivingTickEvent event) {
-        super.tick(event);
+    public void postTick() {
+        super.postTick();
         if(getStoredJumpSpeed() != -1 && this.getOriginal().onGround()){
             setStoredJumpSpeed(-1);
         }

@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(Wolf.class)
+@Mixin(value = Wolf.class, remap = false)
 public class WolfMixin {
     @Redirect(
             method = "registerGoals",

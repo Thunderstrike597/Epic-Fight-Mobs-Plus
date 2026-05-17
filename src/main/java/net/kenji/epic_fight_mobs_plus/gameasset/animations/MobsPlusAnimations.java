@@ -17,8 +17,10 @@ import net.kenji.epic_fight_mobs_plus.mixins.accessors.EntityAccessor;
 import net.kenji.epic_fight_mobs_plus.mixins.accessors.PathNavigationAccessor;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -27,9 +29,8 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 
-@Mod.EventBusSubscriber(modid = EpicFightMobsPlus.MODID)
 public class MobsPlusAnimations {
-    @SubscribeEvent
+
     public static void registerAnimations(AnimationManager.AnimationRegistryEvent event) {
         event.newBuilder(EpicFightMobsPlus.MODID, MobsPlusAnimations::build);    }
 
@@ -156,29 +157,29 @@ public class MobsPlusAnimations {
                     return speed;
                 })));
         HORSE_RUN = builder.nextAccessor("horse/living/horse_run", (accessor -> new StaticAnimation(0.2F,true, accessor, MobsPlusArmatures.HORSE)));
-        HORSE_JUMP = builder.nextAccessor("horse/living/horse_jump", (accessor -> new StaticAnimation(0.05F,false, accessor, MobsPlusArmatures.HORSE).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
-            if(entitypatch instanceof IAnimalMobPatch patchInterface){
-                if(!(patchInterface.getEntityPatch().getOriginal() instanceof AbstractHorse horse)) return speed;
+        HORSE_JUMP = builder.nextAccessor("horse/living/horse_jump", (accessor -> new StaticAnimation(0.05F, false, accessor, MobsPlusArmatures.HORSE).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
+            if (entitypatch instanceof IAnimalMobPatch patchInterface) {
+                if (!(patchInterface.getEntityPatch().getOriginal() instanceof AbstractHorse horse)) return speed;
+                if (!(patchInterface.getEntityPatch() instanceof IHorsePatch horsePatch)) return speed;
 
-                if(!(patchInterface.getEntityPatch() instanceof IHorsePatch horsePatch)) return speed;
+                if (horsePatch.getStoredJumpSpeed() != -1) return horsePatch.getStoredJumpSpeed();
 
-                if(horsePatch.getStoredJumpSpeed() != -1) return horsePatch.getStoredJumpSpeed();
-                double d0 = horse.getCustomJump() * (double)((AbstractHorseAccessor)horse).getPlayerJumpScale() * (double)((EntityAccessor)horse).invokeGetBlockJumpFactor();
-                float boost = (float)( d0 + (double)horse.getJumpBoostPower());
+                // 1.21.1: getCustomJump() is gone, use the JUMP_STRENGTH attribute instead
+                double jumpStrength = horse.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.JUMP_STRENGTH);
+                double d0 = jumpStrength
+                        * (double)((AbstractHorseAccessor) horse).getPlayerJumpScale()
+                        * (double)((EntityAccessor) horse).invokeGetBlockJumpFactor();
+                float boost = (float)(d0 + (double) horse.getJumpBoostPower());
 
-// normalize boost into 0 → 1 range (roughly)
+                // normalize boost into 0 → 1 range (roughly)
                 float normalized = Math.min(boost, 1.0F);
 
-// invert it
+                // invert it
                 float multiplier = 1.0F + (1.0F - normalized);
                 float finalSpeed = speed * multiplier;
 
-                if(finalSpeed <= 1.8F){
-                    finalSpeed = 1.0F;
-                }
-                if(finalSpeed >= 2.0F){
-                    finalSpeed = 2.25F;
-                }
+                if (finalSpeed <= 1.8F) finalSpeed = 1.0F;
+                if (finalSpeed >= 2.0F) finalSpeed = 2.25F;
 
                 return horsePatch.setStoredJumpSpeed(finalSpeed);
             }

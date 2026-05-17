@@ -2,13 +2,11 @@ package net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.events;
 
 import doggytalents.DoggyEntityTypes;
 import net.kenji.epic_fight_mobs_plus.compat.doggy_talents_next.patched_renderers.DogPatchRenderer;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
+import yesman.epicfight.api.client.event.types.registry.RegisterPatchedRenderersEvent;
 
 public class DoggyTalentsClientEvents {
 
-    @SubscribeEvent
-    public static void registerPatchedEntityRenderers(PatchedRenderersEvent.Add event) {
+    public static void registerPatchedEntityRenderers(RegisterPatchedRenderersEvent.AddEntity event) {
 
         event.addPatchedEntityRenderer(
                DoggyEntityTypes.DOG.get(),

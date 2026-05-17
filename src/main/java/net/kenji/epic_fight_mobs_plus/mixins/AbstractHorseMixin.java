@@ -1,58 +1,61 @@
 package net.kenji.epic_fight_mobs_plus.mixins;
 
-import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusArmatures;
 import net.kenji.epic_fight_mobs_plus.gameasset.armatures.HorseArmature;
-import net.kenji.epic_fight_mobs_plus.gameasset.armatures.WolfArmature;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.HorsePatch;
-import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import org.jline.utils.Log;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 
-@Mixin(Entity.class)
-public class EntityMixin {
+@Mixin(value = AbstractHorse.class, remap = false)
+public class AbstractHorseMixin {
 
-    @Inject(method = "getPassengersRidingOffset", at = @At("RETURN"), cancellable = true)
-    public void getPassengerRidingPosition(CallbackInfoReturnable<Double> cir) {
-        Entity self = (Entity)(Object)this;
+    @Shadow
+    private float standAnimO;
 
-        if (self instanceof AbstractHorse horse) {
-            HorsePatch<?> patch = EpicFightCapabilities.getEntityPatch(horse, HorsePatch.class);
-            if (patch == null) return;
-            HorseArmature horseArmature = (HorseArmature) patch.getArmature();
+    @Inject(method = "getPassengerAttachmentPoint", at = @At("RETURN"), cancellable = true)
+    public void getPassengerRidingPosition(Entity p_294756_, EntityDimensions p_295396_, float p_296362_, CallbackInfoReturnable<Vec3> cir) {
+        AbstractHorse self = (AbstractHorse)(Object)this;
 
-            Pose pose = patch.getAnimator().getPose(1.0f);
-            if (pose == null) return;
 
-// Accumulate from root to chest using bind pose + animation
-            OpenMatrix4f modelMatrix = accumulateAnimated(
-                    horseArmature.rootJoint,
-                    horseArmature.chest,
-                    new OpenMatrix4f(),
-                    pose
-            );
+        HorsePatch<?> patch = EpicFightCapabilities.getEntityPatch(self, HorsePatch.class);
+        if (patch == null) return;
+        HorseArmature horseArmature = (HorseArmature) patch.getArmature();
 
-            if (modelMatrix == null) return;
+        Pose pose = patch.getAnimator().getPose(1.0f);
+        if (pose == null) return;
 
-// m31 is the Y translation in the accumulated model matrix
-            float chestModelY = modelMatrix.m31;
-            cir.setReturnValue((double) chestModelY);
-        }
+        OpenMatrix4f modelMatrix = accumulateAnimated(
+                horseArmature.rootJoint,
+                horseArmature.chest,
+                new OpenMatrix4f(),
+                pose
+        );
+
+        if (modelMatrix == null) return;
+
+        float chestModelY = modelMatrix.m31;
+        Vec3 base = cir.getReturnValue();
+
+        // base already has vanilla rearing offset applied (since we're at RETURN)
+        // Calculate what vanilla's base Y would have been without rearing
+        // by getting the super result — but since we can't call super easily,
+        // just add chestModelY as the animated component while keeping
+        // the rearing delta (base.y - defaultAttachmentY)
+         double rearingDelta = 0.15;
+
+        cir.setReturnValue(new Vec3(base.x, chestModelY + rearingDelta, base.z));
     }
     @Unique
     private OpenMatrix4f accumulateAnimated(Joint current, Joint target, OpenMatrix4f parentTransform, Pose pose) {
