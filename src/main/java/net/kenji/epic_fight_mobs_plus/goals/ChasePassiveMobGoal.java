@@ -34,6 +34,7 @@ public class ChasePassiveMobGoal extends TargetChasingGoal{
         if (this.targetPredicate == null) {
             return true;
         }
+        if(this.mobpatch == null) return false;
 
         LivingEntity target = this.mobpatch.getOriginal().getTarget();
 

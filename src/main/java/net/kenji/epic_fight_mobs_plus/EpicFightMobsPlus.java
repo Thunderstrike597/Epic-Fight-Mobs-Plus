@@ -29,6 +29,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -61,7 +62,6 @@ public class EpicFightMobsPlus {
     // Define mod id in a common place for everything to reference
     public static final String MODID = "epic_fight_mobs_plus";
 
-    // Creates a creative tab with the id "epic_fight_mobs_plus:example_tab" for the example item, that is placed after the combat tab
 
     public EpicFightMobsPlus() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -72,27 +72,16 @@ public class EpicFightMobsPlus {
         modEventBus.addListener(MobPatchEvents::commonSetup);
         modEventBus.addListener(MobsPlusAnimations::registerAnimations);
         CompatEvents.OnInit(modEventBus);
-        MinecraftForge.EVENT_BUS.addListener(this::addReloadListnerEvent);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modEventBus.addListener(EpicFightClientEvents::registerPatchedEntityRenderers);        }
         // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);
+        modEventBus.register(this);
 
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(MobsPlusPacketHandler::register);
-    }
-
-    private void addReloadListnerEvent(AddReloadListenerEvent event) {
-        event.addListener(new MobsPlusColliderPreset());
-    }
-
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
@@ -102,6 +91,13 @@ public class EpicFightMobsPlus {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
 
+        }
+    }
+    @Mod.EventBusSubscriber(modid = MODID, value = Dist.DEDICATED_SERVER)
+    public static class ServerForgeEvents {
+        @SubscribeEvent(priority = EventPriority.HIGHEST)
+        public static void addReloadListnerEvent(final AddReloadListenerEvent event) {
+            event.addListener(new MobsPlusColliderPreset());
         }
     }
 }

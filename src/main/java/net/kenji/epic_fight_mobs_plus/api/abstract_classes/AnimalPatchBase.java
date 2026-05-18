@@ -23,6 +23,7 @@ public abstract class AnimalPatchBase<T extends Animal> extends MobPatch<T> impl
     public boolean computeShouldRun() {
         return false;
     }
+
     @Override
     public void updateMotion(boolean b) {
 
