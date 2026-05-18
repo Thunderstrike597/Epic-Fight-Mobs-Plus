@@ -62,7 +62,7 @@ public class PolarBearPatch<H extends PolarBear> extends AnimalPatchBase<PolarBe
         animator.addLivingAnimation(LivingMotions.IDLE, MobsPlusAnimations.POLAR_BEAR_IDLE);
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.POLAR_BEAR_WALK);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.POLAR_BEAR_RUN);
-        //animator.addLivingAnimation(LivingMotions.DEATH, MobsPlusAnimations.HORSE_DEATH);
+        animator.addLivingAnimation(LivingMotions.DEATH, MobsPlusAnimations.WOLF_DEATH);
     }
 
     @Override
