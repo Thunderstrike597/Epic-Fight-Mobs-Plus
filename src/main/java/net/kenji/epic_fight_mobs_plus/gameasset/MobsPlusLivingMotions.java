@@ -6,6 +6,7 @@ import yesman.epicfight.api.animation.LivingMotions;
 public enum MobsPlusLivingMotions implements LivingMotion {
     MOUNT_FORWARD(null),
     MOUNT_BACKWARD(null),
+    HORSE_TROT(null),
     IDLE_ACTION(null),
     IDLE_VAR2(LivingMotions.IDLE),
     IDLE_VAR3(LivingMotions.IDLE),
@@ -17,12 +18,15 @@ public enum MobsPlusLivingMotions implements LivingMotion {
     DYING(null);
 
     public final LivingMotion parentMotion;
-    MobsPlusLivingMotions(LivingMotion parentMotion){
+    private final int id;
+
+    MobsPlusLivingMotions(LivingMotion parentMotion) {
         this.parentMotion = parentMotion;
+        this.id = LivingMotion.ENUM_MANAGER.assign(this);
     }
 
     @Override
     public int universalOrdinal() {
-        return 0;
+        return this.id;
     }
 }

@@ -69,7 +69,20 @@ public class SkeletonHorsePatch<H extends AbstractHorse> extends AnimalPatchBase
         return storedJumpSpeed;
     }
 
+    @Override
+    public LivingMotion getMoveMotion() {
+        LivingMotion motion = null;
+        if(this.shouldRunWithAnim()) {
+            motion = LivingMotions.CHASE;
+        }
+        else if(this.getOriginal().getControllingPassenger() != null && getCurrentForwardSpeed() > 0.08F){
+            motion = this.getEntityPatch().currentLivingMotion = MobsPlusLivingMotions.HORSE_TROT;
+        }
+        else motion = this.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
 
+
+        return motion;
+    }
     @Override
     protected void initAnimator(Animator animator) {
         super.initAnimator(animator);

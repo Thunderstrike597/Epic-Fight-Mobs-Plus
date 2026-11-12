@@ -65,7 +65,15 @@ public class WolfPatch<W extends TamableAnimal> extends AnimalPatchBase<Wolf> {
         return isFollowingOwner ||  this.getOriginal().getPersistentData().getBoolean("is_following") || this.getOriginal().getTarget() != null;
     }
 
-
+    @Override
+    public LivingMotion getMoveMotion() {
+        LivingMotion motion = null;
+        if(this.shouldRunWithAnim()) {
+            motion = LivingMotions.CHASE;
+        }
+        else motion = this.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
+        return motion;
+    }
 
     @Override
     public void updateMotion(boolean b) {

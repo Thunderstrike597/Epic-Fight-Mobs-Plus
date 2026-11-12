@@ -72,7 +72,15 @@ public class FoxPatch<H extends Fox> extends AnimalPatchBase<Fox> {
         }
         return false;
     }
-
+    @Override
+    public LivingMotion getMoveMotion() {
+        LivingMotion motion = null;
+        if(this.shouldRunWithAnim()) {
+            motion = LivingMotions.CHASE;
+        }
+        else motion = this.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
+        return motion;
+    }
     @Override
     public AssetAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {
         return null;

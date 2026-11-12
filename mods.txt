@@ -1,0 +1,29 @@
+
+# CurseForge mods for this project. Resolved by gradle/curse-deps.gradle into mods.lock.
+#
+# One mod per line:   [scope] <project> [fileId]
+#   scope    implementation (default) | compileOnly | runtimeOnly
+#   project  CurseForge project ID (405076), slug-ID (epic-fight-mod-405076) or slug (epic-fight-mod)
+#   fileId   optional: pin an exact file. Without it the newest release for this
+#            Minecraft version + Forge is picked by ./gradlew updateMods.
+#
+# Required dependencies: ./gradlew updateMods also adds every mod listed under "Required Dependency"
+# on a mod's CurseForge page (recursively), with the same scope. They show up in mods.lock as
+# "auto" rows - you don't list them here.
+#   exclude <project>   never add this mod automatically (e.g.  exclude distanthorizons)
+#   To pin an automatic dependency to a specific file, just list it above with its file id.
+#   Turn the feature off with  curse_resolve_dependencies=false  in gradle.properties.
+#
+# Handy tasks (needs a CurseForge API key, see gradle/curse-deps.gradle):
+#   ./gradlew searchMod -Pq="epic fight"
+#   ./gradlew addMod -Pmod=405076 [-Pscope=compileOnly] [-Pbuildid=<fileId>]
+#   ./gradlew modFiles -Pmod=405076
+#   ./gradlew updateMods
+# After any of them, reload the Gradle project in IntelliJ.
+#
+
+implementation doggy-talents-next-694492
+implementation packet-fixer-689467
+implementation just-enough-resources-jer-240630
+implementation epicfight-extra-1434276
+implementation eugenes-whistle-spur-971785

@@ -65,6 +65,8 @@ public class MobsPlusAnimations {
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_IDLE;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_WALK;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_TROT;
+
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_RUN;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_JUMP;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_DEATH;
@@ -155,6 +157,13 @@ public class MobsPlusAnimations {
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
                     if (entitypatch instanceof IAnimalMobPatch patchInterface) {
                         return patchInterface.getAnimForwardSpeed(0.28F, 1.85F);
+                    }
+                    return speed;
+                })));
+        HORSE_TROT = builder.nextAccessor("horse/living/horse_trot", (accessor -> new StaticAnimation(0.25F, true, accessor, MobsPlusArmatures.HORSE)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
+                    if (entitypatch instanceof IAnimalMobPatch patchInterface) {
+                        return patchInterface.getAnimForwardSpeed(0.85F, 1.85F);
                     }
                     return speed;
                 })));

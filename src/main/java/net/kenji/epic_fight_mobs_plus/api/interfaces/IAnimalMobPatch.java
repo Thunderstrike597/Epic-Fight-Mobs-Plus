@@ -6,6 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotion;
+import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public interface IAnimalMobPatch {
     void setOptionalLivingMotion(int motionId);
     boolean shouldRun();
     boolean shouldRunWithAnim();
+    LivingMotion getMoveMotion();
     float getWalkSpeed();
     double getCurrentForwardSpeed();
     void setShouldRun(boolean value);

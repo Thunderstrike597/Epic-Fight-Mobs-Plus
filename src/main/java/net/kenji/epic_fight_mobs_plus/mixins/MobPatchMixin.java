@@ -26,10 +26,7 @@ public class MobPatchMixin {
                 else if (patch.getEntityPatch().getOriginal().getDeltaMovement().y < -0.55F || patch.getEntityPatch().isAirborneState())
                     patch.getEntityPatch().currentLivingMotion = LivingMotions.FALL;
                 else if (patch.getEntityPatch().getOriginal().walkAnimation.speed() > 0.01F) {
-                    if(patch.shouldRunWithAnim()) {
-                        patch.getEntityPatch().currentLivingMotion = LivingMotions.CHASE;
-                    }
-                    else patch.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
+                    patch.getEntityPatch().currentLivingMotion = patch.getMoveMotion();
                 }
                 else if(patch.getOptionalLivingMotion() == null)
                         patch.getEntityPatch().currentLivingMotion = IdleVarientManager.getIdleVarientState(self.getOriginal().getUUID()).currentLivingMotion;

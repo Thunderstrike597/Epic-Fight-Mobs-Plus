@@ -9,7 +9,6 @@ buildscript {
     }
 }
 
-
 plugins {
     id 'eclipse'
     id 'idea'
@@ -20,6 +19,9 @@ plugins {
 
 apply plugin: 'org.spongepowered.mixin'
 
+// CurseForge mods: mods.txt (wanted) + mods.lock (resolved file ids), see gradle/curse-deps.gradle
+apply from: 'gradle/curse-deps.gradle'
+
 group = mod_group_id
 version = mod_version
 
@@ -28,7 +30,7 @@ base {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    toolchain.languageVersion = JavaLanguageVersion.of(language_version)
 }
 
 minecraft {
@@ -83,7 +85,6 @@ minecraft {
             // "REGISTRIES": For firing of registry events.
             // "REGISTRYDUMP": For getting the contents of all registries.
             property 'forge.logging.markers', 'REGISTRIES'
-
 
             // Recommended logging level for the console
             // You can set various levels here.
@@ -170,49 +171,33 @@ dependencies {
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
-    implementation fg.deobf("curse.maven:embeddium-908741:5681725")
-
-    //implementation fg.deobf("curse.maven:oculus-581495:6020952")
-
-    //implementation fg.deobf("curse.maven:ydms-weapon-master-608235:5022313")
-    //implementation fg.deobf("curse.maven:irons-spells-n-spellbooks-855414:7691158")
-    implementation fg.deobf("curse.maven:epic-fight-mod-405076:7734075")
-    implementation fg.deobf("curse.maven:doggy-talents-next-694492:7680415")
-    //implementation fg.deobf("curse.maven:epicfight-resurrection-1151542:6931390")
-    //implementation fg.deobf("curse.maven:weapons-of-miracles-epicfight-918614:7517612")
-    //implementation fg.deobf("curse.maven:epic-fight-invincible-1184379:7679941")
-    //implementation fg.deobf("curse.maven:corpse-316582:7018272")
-
-    implementation fg.deobf("curse.maven:packet-fixer-689467:7221527")
-
-    //implementation fg.deobf("curse.maven:epic-fight-combat-hotbar-1461210:7717714")
-
-    implementation fg.deobf("curse.maven:jei-238222:5533463")
-    implementation fg.deobf("curse.maven:just-enough-resources-jer-240630:5057220")
-    implementation fg.deobf("curse.maven:patchouli-306770:4966125")
-
     compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"))
     compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}"))
     runtimeOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
 
+    implementation fg.deobf("curse.maven:epic-fight-mod-405076:8049910")
+
+    // Mods listed in mods.txt (newest files pinned in mods.lock by ./gradlew updateMods)
+    curseMods.each { m -> add(m.scope, fg.deobf(m.coordinates)) }
+
+    // Add more dependencies here, e.g.:
+    // implementation fg.deobf("curse.maven:<slug>-<projectId>:<fileId>")
 }
 
 // -------------------- Resources --------------------
 tasks.named('processResources', ProcessResources).configure {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    var replaceProperties = [
-            minecraft_version   : minecraft_version,
-            minecraft_version_range: minecraft_version_range,
-            forge_version       : forge_version,
-            forge_version_range : forge_version_range,
-            loader_version_range: loader_version_range,
-            mod_id              : mod_id,
-            mod_name            : mod_name,
-            mod_license         : mod_license,
-            mod_version         : mod_version,
-            mod_authors         : mod_authors,
-            mod_description     : mod_description
-    ]
+    var replaceProperties = [minecraft_version      : minecraft_version,
+                             minecraft_version_range: minecraft_version_range,
+                             forge_version          : forge_version,
+                             forge_version_range    : forge_version_range,
+                             loader_version_range   : loader_version_range,
+                             mod_id                 : mod_id,
+                             mod_name               : mod_name,
+                             mod_license            : mod_license,
+                             mod_version            : mod_version,
+                             mod_authors            : mod_authors,
+                             mod_description        : mod_description]
 
     inputs.properties replaceProperties
 
@@ -231,18 +216,16 @@ java {
 
 // -------------------- Dev Jar (DEOBF) --------------------
 tasks.named('jar', Jar).configure {
-    archiveBaseName = "MobsPlus-Forge-EFM-${epic_fight_version}"
+    archiveBaseName = jar_base_name
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
-        attributes([
-                "Specification-Title"     : mod_id,
-                "Specification-Vendor"    : mod_authors,
-                "Specification-Version"   : "1",
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.version,
-                "Implementation-Vendor"   : mod_authors,
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+        attributes(["Specification-Title"     : mod_id,
+                    "Specification-Vendor"    : mod_authors,
+                    "Specification-Version"   : "1",
+                    "Implementation-Title"    : project.name,
+                    "Implementation-Version"  : project.version,
+                    "Implementation-Vendor"   : mod_authors,
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
     }
 }
 
@@ -268,10 +251,9 @@ tasks.register('releaseJar') {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = 'net.kenji'
-            artifactId = 'epic-fight-mobs-plus-efm-20-14-4'
-            version = '1.4.0'
-
+            groupId = mod_group_id
+            artifactId = mod_id
+            version = mod_version
 
             // Publishes ONLY the deobf dev jar + sources
             from components.java

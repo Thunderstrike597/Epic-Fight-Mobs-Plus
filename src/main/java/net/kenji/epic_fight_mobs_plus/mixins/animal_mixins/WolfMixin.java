@@ -1,8 +1,10 @@
 package net.kenji.epic_fight_mobs_plus.mixins.animal_mixins;
 
+import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.player.Player;
@@ -12,6 +14,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
+import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
+import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 @Mixin(Wolf.class)
 public class WolfMixin {

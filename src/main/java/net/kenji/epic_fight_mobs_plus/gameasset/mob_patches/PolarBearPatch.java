@@ -55,7 +55,15 @@ public class PolarBearPatch<H extends PolarBear> extends AnimalPatchBase<PolarBe
 
         return this.getOriginal().getTarget() != null;
     }
-
+    @Override
+    public LivingMotion getMoveMotion() {
+        LivingMotion motion = null;
+        if(this.shouldRunWithAnim()) {
+            motion = LivingMotions.CHASE;
+        }
+        else motion = this.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
+        return motion;
+    }
     @Override
     protected void initAnimator(Animator animator) {
         super.initAnimator(animator);
