@@ -165,7 +165,15 @@ public class DogPatch<D extends Dog> extends AnimalPatchBase<Dog> {
     public boolean shouldRunWithAnim() {
         return shouldRun() && getCurrentForwardSpeed() > 0.1F;
     }
-
+    @Override
+    public LivingMotion getMoveMotion() {
+        LivingMotion motion = null;
+        if(this.shouldRunWithAnim()) {
+            motion = LivingMotions.CHASE;
+        }
+        else motion = this.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
+        return motion;
+    }
     @Override
     public void setShouldRun(boolean value) {
         shouldRun = value;

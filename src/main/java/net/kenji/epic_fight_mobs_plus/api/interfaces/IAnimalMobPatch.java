@@ -16,6 +16,7 @@ public interface IAnimalMobPatch {
     void setOptionalLivingMotion(int motionId);
     boolean shouldRun();
     boolean shouldRunWithAnim();
+    LivingMotion getMoveMotion();
     float getWalkSpeed();
     double getCurrentForwardSpeed();
     void setShouldRun(boolean value);

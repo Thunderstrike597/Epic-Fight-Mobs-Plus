@@ -35,6 +35,8 @@ public class MobsPlusAnimations {
         event.newBuilder(EpicFightMobsPlus.MODID, MobsPlusAnimations::build);    }
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> BIPED_MOUNT_IDLE;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> BIPED_MOUNT_IDLE_ALT;
+
     public static AnimationManager.AnimationAccessor<StaticAnimation> BIPED_MOUNT_RIDE_FORWARD;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BIPED_MOUNT_RIDE_BACKWARD;
 
@@ -65,6 +67,8 @@ public class MobsPlusAnimations {
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_IDLE;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_WALK;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_TROT;
+
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_RUN;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_JUMP;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HORSE_DEATH;
@@ -111,6 +115,7 @@ public class MobsPlusAnimations {
 
     private static void build(AnimationManager.AnimationBuilder builder){
         BIPED_MOUNT_IDLE = builder.nextAccessor("biped/living/mount_idle", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));
+        BIPED_MOUNT_IDLE_ALT = builder.nextAccessor("biped/living/mount_idle_alt", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));
 
         BIPED_MOUNT_RIDE_FORWARD = builder.nextAccessor("biped/living/mount_ride_forward", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));
         BIPED_MOUNT_RIDE_BACKWARD = builder.nextAccessor("biped/living/mount_ride_backward", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));
@@ -155,6 +160,13 @@ public class MobsPlusAnimations {
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
                     if (entitypatch instanceof IAnimalMobPatch patchInterface) {
                         return patchInterface.getAnimForwardSpeed(0.28F, 1.85F);
+                    }
+                    return speed;
+                })));
+        HORSE_TROT = builder.nextAccessor("horse/living/horse_trot", (accessor -> new StaticAnimation(0.25F, true, accessor, MobsPlusArmatures.HORSE)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
+                    if (entitypatch instanceof IAnimalMobPatch patchInterface) {
+                        return patchInterface.getAnimForwardSpeed(0.85F, 1.85F);
                     }
                     return speed;
                 })));

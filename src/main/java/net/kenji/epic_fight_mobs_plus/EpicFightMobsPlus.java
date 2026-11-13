@@ -8,6 +8,7 @@ import net.kenji.epic_fight_mobs_plus.events.MobPatchEvents;
 import net.kenji.epic_fight_mobs_plus.events.client_events.EpicFightClientEvents;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusArmatures;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusColliderPreset;
+import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.kenji.epic_fight_mobs_plus.gameasset.animations.MobsPlusAnimations;
 import net.kenji.epic_fight_mobs_plus.gameasset.mob_patches.WolfPatch;
 import net.kenji.epic_fight_mobs_plus.network.MobsPlusPacketHandler;
@@ -27,6 +28,7 @@ import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.client.event.types.registry.RegisterPatchedRenderersEvent;
 import yesman.epicfight.api.event.EpicFightEventHooks;
@@ -48,6 +50,13 @@ public class EpicFightMobsPlus {
 
     // Define mod id in a common place for everything to reference
     public static final String MODID = "epic_fight_mobs_plus";
+    public static boolean isLoaded(String modid) {
+        return FMLLoader.getLoadingModList().getModFileById(modid) != null;
+    }
+
+    public static boolean SAS_LOADED = isLoaded("saddleandspur");
+    public static boolean EFX_LOADED = isLoaded("epicfightx");
+
 
     // Creates a creative tab with the id "epic_fight_mobs_plus:example_tab" for the example item, that is placed after the combat tab
 
@@ -59,6 +68,8 @@ public class EpicFightMobsPlus {
         modEventBus.addListener(MobsPlusAnimations::registerAnimations);
         CompatEvents.OnInit(modEventBus);
         container.registerConfig(ModConfig.Type.COMMON, MobsPlusConfigCommon.SPEC, "EpicFight-MobsPlus-Common.toml");
+        LivingMotion.ENUM_MANAGER.registerEnumCls(EpicFightMobsPlus.MODID, MobsPlusLivingMotions.class);
+
         if (FMLEnvironment.dist == Dist.CLIENT) {
             //modEventBus.addListener(EpicFightClientEvents::registerPatchedEntityRenderers);
         }

@@ -1,10 +1,13 @@
 package net.kenji.epic_fight_mobs_plus.mixins;
 
+import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
+import net.kenji.epic_fight_mobs_plus.compat.SaddleAndSpearCompat;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PlayerRideableJumping;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
 import org.jline.utils.Log;
@@ -47,12 +50,12 @@ public abstract class AbstractClientPlayerPatchMixin {
         Vec3 movement = vehicle.getDeltaMovement();
         Vec3 forward = vehicle.getForward();
         double forwardSpeed = movement.dot(forward); // project movement onto facing direction
-        if (forwardSpeed > 0.1F)
+        if (forwardSpeed > 0.1F && SaddleAndSpearCompat.isHorseRunning(self, vehicle instanceof AbstractHorse horse ? horse : null))
             return MobsPlusLivingMotions.MOUNT_FORWARD;
         else if (forwardSpeed < -0.01F && vehicle.getDeltaMovement().y < 0.01)
             return MobsPlusLivingMotions.MOUNT_BACKWARD;
+        return SaddleAndSpearCompat.getTrotPlayerMotion(self,  vehicle instanceof AbstractHorse horse ? horse : null);
 
-        return LivingMotions.MOUNT;
     }
 
 

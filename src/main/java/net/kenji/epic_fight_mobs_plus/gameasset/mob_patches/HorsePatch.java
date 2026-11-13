@@ -71,6 +71,7 @@ public class HorsePatch<H extends AbstractHorse> extends AnimalPatchBase<Horse> 
         super.initAnimator(animator);
         animator.addLivingAnimation(LivingMotions.IDLE, MobsPlusAnimations.HORSE_IDLE);
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.HORSE_WALK);
+        animator.addLivingAnimation(MobsPlusLivingMotions.HORSE_TROT, MobsPlusAnimations.HORSE_TROT);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.HORSE_RUN);
         animator.addLivingAnimation(LivingMotions.JUMP, MobsPlusAnimations.HORSE_JUMP);
         animator.addLivingAnimation(LivingMotions.DEATH, MobsPlusAnimations.HORSE_DEATH);
@@ -95,7 +96,20 @@ public class HorsePatch<H extends AbstractHorse> extends AnimalPatchBase<Horse> 
     public boolean shouldRunWithAnim() {
         return shouldRun();
     }
+    @Override
+    public LivingMotion getMoveMotion() {
+        LivingMotion motion = null;
+        if(this.shouldRunWithAnim()) {
+            motion = LivingMotions.CHASE;
+        }
+        else if(this.getOriginal().getControllingPassenger() != null && getCurrentForwardSpeed() > 0.08F){
+            motion = this.getEntityPatch().currentLivingMotion = MobsPlusLivingMotions.HORSE_TROT;
+        }
+        else motion = this.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
 
+
+        return motion;
+    }
     @Override
     public boolean shouldRun() {
         return getCurrentForwardSpeed() > 0.15F;

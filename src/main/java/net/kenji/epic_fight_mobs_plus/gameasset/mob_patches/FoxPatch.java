@@ -176,6 +176,15 @@ public class FoxPatch<H extends Fox> extends AnimalPatchBase<Fox> {
         return shouldRun() && (getCurrentForwardSpeed() > this.getWalkSpeed());
     }
     @Override
+    public LivingMotion getMoveMotion() {
+        LivingMotion motion = null;
+        if(this.shouldRunWithAnim()) {
+            motion = LivingMotions.CHASE;
+        }
+        else motion = this.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
+        return motion;
+    }
+    @Override
     public boolean shouldRun() {
        if(!this.getOriginal().isSteppingCarefully()) {
 

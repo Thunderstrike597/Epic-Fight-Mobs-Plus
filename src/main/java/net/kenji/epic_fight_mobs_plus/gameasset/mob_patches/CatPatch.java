@@ -146,7 +146,15 @@ public class CatPatch<H extends Cat> extends AnimalPatchBase<Cat> {
     public boolean shouldRunWithAnim() {
         return shouldRun() && (getCurrentForwardSpeed() > this.getWalkSpeed());
     }
-
+    @Override
+    public LivingMotion getMoveMotion() {
+        LivingMotion motion = null;
+        if(this.shouldRunWithAnim()) {
+            motion = LivingMotions.CHASE;
+        }
+        else motion = this.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
+        return motion;
+    }
     @Override
     public boolean shouldRun() {
        if(!this.getOriginal().isSteppingCarefully()) {

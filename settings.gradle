@@ -1,6 +1,7 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
+        maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
         maven {
             name = 'MinecraftForge'
             url = 'https://maven.minecraftforge.net/'
@@ -12,10 +13,6 @@ pluginManagement {
         maven {
             url = 'https://maven.neoforged.net/releases'
         }
-
-        gradlePluginPortal()
-        mavenLocal()
-        
     }
 }
 
@@ -23,4 +20,4 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.7.0'
 }
 
-rootProject.name = 'epic-fight-mobs-plus-1_21_1'
+rootProject.name = 'epicfight-mobs-plus-1_21_1'

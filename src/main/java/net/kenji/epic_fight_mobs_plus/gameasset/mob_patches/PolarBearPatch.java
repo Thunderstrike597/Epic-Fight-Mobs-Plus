@@ -94,7 +94,15 @@ public class PolarBearPatch<H extends PolarBear> extends AnimalPatchBase<PolarBe
     public boolean shouldRunWithAnim() {
         return shouldRun();
     }
-
+    @Override
+    public LivingMotion getMoveMotion() {
+        LivingMotion motion = null;
+        if(this.shouldRunWithAnim()) {
+            motion = LivingMotions.CHASE;
+        }
+        else motion = this.getEntityPatch().currentLivingMotion = LivingMotions.WALK;
+        return motion;
+    }
     @Override
     public boolean shouldRun() {
         return getCurrentForwardSpeed() > 0.1F || shouldRun;
