@@ -34,6 +34,7 @@ public class MobsPlusAnimations {
         event.newBuilder(EpicFightMobsPlus.MODID, MobsPlusAnimations::build);    }
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> BIPED_MOUNT_IDLE;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> BIPED_MOUNT_IDLE_ALT;
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> BIPED_MOUNT_RIDE_FORWARD;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BIPED_MOUNT_RIDE_BACKWARD;
@@ -113,6 +114,7 @@ public class MobsPlusAnimations {
 
     private static void build(AnimationManager.AnimationBuilder builder){
         BIPED_MOUNT_IDLE = builder.nextAccessor("biped/living/mount_idle", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));
+        BIPED_MOUNT_IDLE_ALT = builder.nextAccessor("biped/living/mount_idle_alt", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));
 
         BIPED_MOUNT_RIDE_FORWARD = builder.nextAccessor("biped/living/mount_ride_forward", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));
         BIPED_MOUNT_RIDE_BACKWARD = builder.nextAccessor("biped/living/mount_ride_backward", (accessor -> new StaticAnimation(0.2F,true, accessor, Armatures.BIPED)));

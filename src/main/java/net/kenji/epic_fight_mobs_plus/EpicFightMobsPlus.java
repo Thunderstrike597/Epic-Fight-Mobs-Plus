@@ -69,6 +69,7 @@ public class EpicFightMobsPlus {
     }
 
     public static boolean SAS_LOADED = isLoaded("saddleandspur");
+    public static boolean EFX_LOADED = isLoaded("epicfightx");
 
     public EpicFightMobsPlus() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();

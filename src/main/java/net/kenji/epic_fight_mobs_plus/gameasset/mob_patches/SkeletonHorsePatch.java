@@ -88,6 +88,7 @@ public class SkeletonHorsePatch<H extends AbstractHorse> extends AnimalPatchBase
         super.initAnimator(animator);
         animator.addLivingAnimation(LivingMotions.IDLE, MobsPlusAnimations.HORSE_IDLE);
         animator.addLivingAnimation(LivingMotions.WALK, MobsPlusAnimations.HORSE_WALK);
+        animator.addLivingAnimation(MobsPlusLivingMotions.HORSE_TROT, MobsPlusAnimations.HORSE_TROT);
         animator.addLivingAnimation(LivingMotions.CHASE, MobsPlusAnimations.HORSE_RUN);
         animator.addLivingAnimation(LivingMotions.JUMP, MobsPlusAnimations.HORSE_JUMP);
         animator.addLivingAnimation(LivingMotions.DEATH, MobsPlusAnimations.HORSE_DEATH);

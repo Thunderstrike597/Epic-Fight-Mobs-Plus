@@ -1,5 +1,6 @@
 package net.kenji.epic_fight_mobs_plus.mixins;
 
+import net.kenji.epic_fight_mobs_plus.EpicFightMobsPlus;
 import net.kenji.epic_fight_mobs_plus.compat.SaddleAndSpearCompat;
 import net.kenji.epic_fight_mobs_plus.gameasset.MobsPlusLivingMotions;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -53,7 +54,7 @@ public abstract class AbstractClientPlayerPatchMixin {
         else if (forwardSpeed < -0.01F && vehicle.getDeltaMovement().y < 0.01)
             return MobsPlusLivingMotions.MOUNT_BACKWARD;
 
-        return LivingMotions.MOUNT;
+        return SaddleAndSpearCompat.getTrotPlayerMotion(self,  vehicle instanceof AbstractHorse horse ? horse : null);
     }
 
 

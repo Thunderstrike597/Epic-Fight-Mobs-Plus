@@ -4,6 +4,8 @@ import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 
 public enum MobsPlusLivingMotions implements LivingMotion {
+    MOUNT_IDLE(null),
+    MOUNT_SLOW_FORWARD(null),
     MOUNT_FORWARD(null),
     MOUNT_BACKWARD(null),
     HORSE_TROT(null),
